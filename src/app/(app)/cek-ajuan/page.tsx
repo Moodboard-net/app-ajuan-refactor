@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { FileStack, Wallet, CheckCircle2, Clock, Inbox } from "lucide-react";
-import { requireRole } from "@/server/auth";
-import { listAjuanAll } from "@/server/ajuan";
-import { getKpi, getStatusBreakdown, getTopDivisi, getTrenBulanan } from "@/server/dashboard";
+import { requireRole } from "@/lib/auth";
+import { listAjuanAll } from "@/services/ajuanService";
+import { getKpi, getStatusBreakdown, getTopDivisi, getTrenBulanan } from "@/services/dashboardService";
 import { formatRupiah, formatDate } from "@/lib/format";
 import { StatusBadge } from "@/components/status-badge";
 import { KpiCard } from "@/components/kpi-card";

@@ -1,9 +1,9 @@
 "use server";
 
 import ExcelJS from "exceljs";
-import { requireRole } from "@/server/auth";
-import { sql } from "@/server/db";
-import { createAjuan } from "@/server/ajuan";
+import { requireRole } from "@/lib/auth";
+import { sql } from "@/lib/db";
+import { createAjuanFromImport } from "@/services/ajuanService";
 
 export type ImportState = {
   error?: string;
@@ -79,7 +79,7 @@ export async function importSheetAction(
     }
 
     try {
-      await createAjuan({
+      await createAjuanFromImport({
         idDivisi: row.idDivisi,
         namaPengaju: row.namaPengaju,
         atasNamaRekening: row.atasNamaRekening,

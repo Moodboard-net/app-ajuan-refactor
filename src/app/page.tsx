@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
-import { getSession, type Role } from "@/server/auth";
+import { getSession } from "@/lib/auth";
+import type { Role } from "@/types";
 
 const roleHome: Record<Role, string> = {
   admin: "/cek-ajuan",

@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { FileText, UploadCloud, ReceiptText } from "lucide-react";
-import { requireRole } from "@/server/auth";
-import { getAjuanById } from "@/server/ajuan";
+import { requireRole } from "@/lib/auth";
+import { getAjuanById } from "@/services/ajuanService";
 import { formatRupiah, formatDate } from "@/lib/format";
 import { StatusBadge } from "@/components/status-badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

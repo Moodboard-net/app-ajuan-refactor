@@ -2,8 +2,7 @@ import "server-only";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { SignJWT, jwtVerify } from "jose";
-
-export type Role = "admin" | "dirkeu" | "divisi";
+import type { Role } from "@/types";
 
 export type SessionPayload = {
   userId: number;

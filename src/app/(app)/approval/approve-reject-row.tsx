@@ -2,11 +2,8 @@
 
 import { useActionState, useState } from "react";
 import { Check, X } from "lucide-react";
-import {
-  approveAjuanAction,
-  rejectAjuanAction,
-  type ActionState,
-} from "@/server/actions/ajuan";
+import { approveAjuanAction, rejectAjuanAction } from "@/services/ajuanService";
+import type { ActionState } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 

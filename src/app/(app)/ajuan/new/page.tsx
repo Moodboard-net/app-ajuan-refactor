@@ -1,4 +1,4 @@
-import { requireRole } from "@/server/auth";
+import { requireRole } from "@/lib/auth";
 import { AjuanForm } from "./ajuan-form";
 
 export default async function NewAjuanPage() {

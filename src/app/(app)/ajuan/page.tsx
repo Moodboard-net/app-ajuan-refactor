@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Plus, FileStack } from "lucide-react";
-import { requireRole } from "@/server/auth";
-import { listAjuanByDivisi } from "@/server/ajuan";
+import { requireRole } from "@/lib/auth";
+import { listAjuanByDivisi } from "@/services/ajuanService";
 import { formatRupiah, formatDate } from "@/lib/format";
 import { StatusBadge } from "@/components/status-badge";
 import { EmptyState } from "@/components/empty-state";

@@ -1,6 +1,6 @@
 import { ClipboardCheck, TriangleAlert, CheckCircle2 } from "lucide-react";
-import { requireRole } from "@/server/auth";
-import { listAjuanMenungguApproval, findAjuanBelumLpj } from "@/server/ajuan";
+import { requireRole } from "@/lib/auth";
+import { listAjuanMenungguApproval, countAjuanBelumLpj } from "@/services/ajuanService";
 import { formatRupiah, formatDate } from "@/lib/format";
 import { EmptyState } from "@/components/empty-state";
 import { Card, CardContent } from "@/components/ui/card";
@@ -22,7 +22,7 @@ export default async function ApprovalPage() {
   const rows = await Promise.all(
     data.map(async (ajuan) => ({
       ajuan,
-      belumLpj: await findAjuanBelumLpj(ajuan.id_divisi, ajuan.id),
+      belumLpjCount: await countAjuanBelumLpj(ajuan.id_divisi, ajuan.id),
     }))
   );
 
@@ -51,17 +51,17 @@ export default async function ApprovalPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {rows.map(({ ajuan, belumLpj }) => (
+                {rows.map(({ ajuan, belumLpjCount }) => (
                   <TableRow key={ajuan.id}>
                     <TableCell>{formatDate(ajuan.created_at)}</TableCell>
                     <TableCell>{ajuan.nama_divisi}</TableCell>
                     <TableCell>{ajuan.nama_pengaju}</TableCell>
                     <TableCell>{formatRupiah(ajuan.nominal_diajukan)}</TableCell>
                     <TableCell>
-                      {belumLpj.length > 0 ? (
+                      {belumLpjCount > 0 ? (
                         <Badge className="border-transparent bg-warning/15 text-warning">
                           <TriangleAlert />
-                          LPJ belum lengkap ({belumLpj.length})
+                          LPJ belum lengkap ({belumLpjCount})
                         </Badge>
                       ) : (
                         <Badge className="border-transparent bg-success/15 text-success">
@@ -72,7 +72,7 @@ export default async function ApprovalPage() {
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-2">
-                        <ApproveButton idAjuan={ajuan.id} blocked={belumLpj.length > 0} />
+                        <ApproveButton idAjuan={ajuan.id} blocked={belumLpjCount > 0} />
                         <RejectButton idAjuan={ajuan.id} />
                       </div>
                     </TableCell>

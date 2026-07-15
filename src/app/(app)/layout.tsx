@@ -1,5 +1,5 @@
 import { Wallet } from "lucide-react";
-import { requireUser } from "@/server/auth";
+import { requireUser } from "@/lib/auth";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { LogoutButton } from "@/components/logout-button";

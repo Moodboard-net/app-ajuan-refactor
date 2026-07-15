@@ -2,7 +2,8 @@
 
 import { useActionState } from "react";
 import { CheckCircle2, Upload, TriangleAlert } from "lucide-react";
-import { uploadBuktiAction, type ActionState } from "@/server/actions/ajuan";
+import { uploadBuktiAction } from "@/services/ajuanService";
+import type { ActionState } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
