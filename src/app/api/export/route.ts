@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import ExcelJS from "exceljs";
-import { requireRole } from "@/lib/auth";
-import { listAjuanAll } from "@/lib/ajuan";
+import { requireRole } from "@/server/auth";
+import { listAjuanAll } from "@/server/ajuan";
 
 export async function GET() {
   await requireRole("admin", "dirkeu");

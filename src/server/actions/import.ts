@@ -1,9 +1,9 @@
 "use server";
 
 import ExcelJS from "exceljs";
-import { requireRole } from "@/lib/auth";
-import { sql } from "@/lib/db";
-import { createAjuan } from "@/lib/ajuan";
+import { requireRole } from "@/server/auth";
+import { sql } from "@/server/db";
+import { createAjuan } from "@/server/ajuan";
 
 export type ImportState = {
   error?: string;

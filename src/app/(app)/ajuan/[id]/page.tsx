@@ -1,11 +1,21 @@
 import { notFound } from "next/navigation";
-import { requireRole } from "@/lib/auth";
-import { getAjuanById } from "@/lib/ajuan";
+import { FileText, UploadCloud, ReceiptText } from "lucide-react";
+import { requireRole } from "@/server/auth";
+import { getAjuanById } from "@/server/ajuan";
 import { formatRupiah, formatDate } from "@/lib/format";
 import { StatusBadge } from "@/components/status-badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { UploadBuktiForm } from "./upload-bukti-form";
 import { UploadLpjForm } from "./upload-lpj-form";
+
+function DetailRow({ label, value }: { label: string; value: React.ReactNode }) {
+  return (
+    <div className="grid grid-cols-3 gap-2 border-b py-2 last:border-b-0">
+      <span className="text-muted-foreground">{label}</span>
+      <span className="col-span-2 font-medium">{value}</span>
+    </div>
+  );
+}
 
 export default async function AjuanDetailPage({
   params,
@@ -29,17 +39,23 @@ export default async function AjuanDetailPage({
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Detail Ajuan</CardTitle>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <FileText className="size-4 text-muted-foreground" />
+            Detail Ajuan
+          </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-1 text-sm">
-          <p>Tanggal: {formatDate(ajuan.created_at)}</p>
-          <p>Nama Pengaju: {ajuan.nama_pengaju}</p>
-          <p>Atas Nama Rekening: {ajuan.atas_nama_rekening}</p>
-          <p>Nomor Rekening: {ajuan.nomor_rekening} ({ajuan.nama_bank})</p>
-          <p>Keterangan Kegiatan: {ajuan.keterangan_kegiatan}</p>
-          <p>Nominal Diajukan: {formatRupiah(ajuan.nominal_diajukan)}</p>
+        <CardContent className="text-sm">
+          <DetailRow label="Tanggal" value={formatDate(ajuan.created_at)} />
+          <DetailRow label="Nama Pengaju" value={ajuan.nama_pengaju} />
+          <DetailRow label="Atas Nama Rekening" value={ajuan.atas_nama_rekening} />
+          <DetailRow
+            label="Nomor Rekening"
+            value={`${ajuan.nomor_rekening} (${ajuan.nama_bank})`}
+          />
+          <DetailRow label="Keterangan Kegiatan" value={ajuan.keterangan_kegiatan} />
+          <DetailRow label="Nominal Diajukan" value={formatRupiah(ajuan.nominal_diajukan)} />
           {ajuan.catatan_approval && (
-            <p>Catatan Dirkeu: {ajuan.catatan_approval}</p>
+            <DetailRow label="Catatan Dirkeu" value={ajuan.catatan_approval} />
           )}
         </CardContent>
       </Card>
@@ -47,7 +63,10 @@ export default async function AjuanDetailPage({
       {ajuan.status === "Disetujui" && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Upload Bukti Transfer</CardTitle>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <UploadCloud className="size-4 text-muted-foreground" />
+              Upload Bukti Transfer
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <UploadBuktiForm idAjuan={ajuan.id} />
@@ -58,7 +77,10 @@ export default async function AjuanDetailPage({
       {ajuan.status === "Selesai Dibayar" && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Upload LPJ</CardTitle>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <ReceiptText className="size-4 text-muted-foreground" />
+              Upload LPJ
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <UploadLpjForm idAjuan={ajuan.id} />

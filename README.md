@@ -81,9 +81,10 @@ Migrasi data dari aplikasi lama (Next.js + PostgreSQL) adalah proses **sekali ja
 
 ```text
 src/
-  app/            # Routes (App Router), termasuk (app)/ untuk halaman yang butuh login
-  components/     # Komponen UI (termasuk shadcn/ui di components/ui)
-  lib/            # Auth, db, storage (RustFS), domain logic, server actions
+  app/            # HANYA routing: page.tsx, layout.tsx, route.ts (App Router)
+  components/     # Logika antarmuka (client): komponen UI reusable, termasuk shadcn/ui di components/ui
+  server/         # Pemrosesan server/API: query database, server actions, auth/session, storage (RustFS)
+  lib/            # Fungsi utilitas & logika bisnis murni (format, perhitungan selisih dana, dsb.)
 db/
   migrations/     # Skema SQL
   seed.ts         # Seed akun awal
