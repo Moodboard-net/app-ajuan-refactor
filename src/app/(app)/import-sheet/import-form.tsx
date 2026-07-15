@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { importSheetAction, type ImportState } from "@/lib/actions/import";
+import { importSheetAction, type ImportState } from "@/server/actions/import";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

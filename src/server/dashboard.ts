@@ -1,5 +1,5 @@
 import "server-only";
-import { sql } from "@/lib/db";
+import { sql } from "@/server/db";
 
 export type StatusBreakdown = {
   status: string;

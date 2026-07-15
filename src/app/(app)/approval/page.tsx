@@ -1,5 +1,5 @@
-import { requireRole } from "@/lib/auth";
-import { listAjuanMenungguApproval, findAjuanBelumLpj } from "@/lib/ajuan";
+import { requireRole } from "@/server/auth";
+import { listAjuanMenungguApproval, findAjuanBelumLpj } from "@/server/ajuan";
 import { formatRupiah, formatDate } from "@/lib/format";
 import {
   Table,

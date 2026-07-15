@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { uploadBuktiAction, type ActionState } from "@/lib/actions/ajuan";
+import { uploadBuktiAction, type ActionState } from "@/server/actions/ajuan";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

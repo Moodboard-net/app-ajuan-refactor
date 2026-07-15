@@ -2,9 +2,9 @@
 
 import { z } from "zod";
 import { redirect } from "next/navigation";
-import { sql } from "@/lib/db";
-import { verifyPassword } from "@/lib/password";
-import { createSession, destroySession, type Role } from "@/lib/auth";
+import { sql } from "@/server/db";
+import { verifyPassword } from "@/server/password";
+import { createSession, destroySession, type Role } from "@/server/auth";
 
 const loginSchema = z.object({
   username: z.string().min(1, "Username wajib diisi"),

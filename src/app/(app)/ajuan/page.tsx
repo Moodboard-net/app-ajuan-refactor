@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { requireRole } from "@/lib/auth";
-import { listAjuanByDivisi } from "@/lib/ajuan";
+import { requireRole } from "@/server/auth";
+import { listAjuanByDivisi } from "@/server/ajuan";
 import { formatRupiah, formatDate } from "@/lib/format";
 import { StatusBadge } from "@/components/status-badge";
 import { Button } from "@/components/ui/button";

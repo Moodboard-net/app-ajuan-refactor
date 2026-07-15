@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
-import { requireRole } from "@/lib/auth";
-import { getAjuanById } from "@/lib/ajuan";
+import { requireRole } from "@/server/auth";
+import { getAjuanById } from "@/server/ajuan";
 import { formatRupiah, formatDate } from "@/lib/format";
 import { StatusBadge } from "@/components/status-badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

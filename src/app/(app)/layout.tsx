@@ -1,4 +1,4 @@
-import { requireUser } from "@/lib/auth";
+import { requireUser } from "@/server/auth";
 import { Badge } from "@/components/ui/badge";
 import { LogoutButton } from "@/components/logout-button";
 

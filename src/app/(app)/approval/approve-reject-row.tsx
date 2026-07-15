@@ -5,7 +5,7 @@ import {
   approveAjuanAction,
   rejectAjuanAction,
   type ActionState,
-} from "@/lib/actions/ajuan";
+} from "@/server/actions/ajuan";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 

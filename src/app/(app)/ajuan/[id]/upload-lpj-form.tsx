@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { uploadLpjAction, type ActionState } from "@/lib/actions/ajuan";
+import { uploadLpjAction, type ActionState } from "@/server/actions/ajuan";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

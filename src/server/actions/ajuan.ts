@@ -3,9 +3,9 @@
 import { z } from "zod";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { requireRole } from "@/lib/auth";
-import { sql } from "@/lib/db";
-import { uploadFile } from "@/lib/storage";
+import { requireRole } from "@/server/auth";
+import { sql } from "@/server/db";
+import { uploadFile } from "@/server/storage";
 import {
   createAjuan,
   getAjuanById,
@@ -14,7 +14,8 @@ import {
   markSelesaiDibayar,
   findAjuanBelumLpj,
   insertAuditTrail,
-} from "@/lib/ajuan";
+} from "@/server/ajuan";
+import { hitungSelisihDana } from "@/lib/dana";
 
 export type ActionState = { error?: string; success?: boolean };
 
@@ -133,8 +134,10 @@ export async function uploadLpjAction(
   }
 
   const nominalDiajukan = Number(ajuan.nominal_diajukan);
-  const selisih = nominalDiajukan - parsed.data.nominalRealisasi;
-  const statusDana = selisih > 0 ? "Surplus" : selisih < 0 ? "Defisit" : "Sesuai";
+  const { selisih, statusDana } = hitungSelisihDana(
+    nominalDiajukan,
+    parsed.data.nominalRealisasi
+  );
 
   const { objectKey, namaFile } = await uploadFile("lpj", file);
 

@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { requireRole } from "@/lib/auth";
-import { listAjuanAll } from "@/lib/ajuan";
-import { getKpi, getStatusBreakdown, getTopDivisi, getTrenBulanan } from "@/lib/dashboard";
+import { requireRole } from "@/server/auth";
+import { listAjuanAll } from "@/server/ajuan";
+import { getKpi, getStatusBreakdown, getTopDivisi, getTrenBulanan } from "@/server/dashboard";
 import { formatRupiah, formatDate } from "@/lib/format";
 import { StatusBadge } from "@/components/status-badge";
 import { Button } from "@/components/ui/button";

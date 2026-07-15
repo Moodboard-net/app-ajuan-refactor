@@ -1,4 +1,4 @@
-import { requireRole } from "@/lib/auth";
+import { requireRole } from "@/server/auth";
 import { ImportForm } from "./import-form";
 
 export default async function ImportSheetPage() {
