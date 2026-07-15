@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { FileSpreadsheet, TriangleAlert, CheckCircle2 } from "lucide-react";
 import { importSheetAction, type ImportState } from "@/services/importService";
@@ -28,8 +28,11 @@ export function ImportDialog() {
   const [handledState, setHandledState] = useState(state);
   if (state !== handledState) {
     setHandledState(state);
-    if (state?.success) router.refresh();
   }
+
+  useEffect(() => {
+    if (state?.success) router.refresh();
+  }, [state, router]);
 
   return (
     <Dialog>

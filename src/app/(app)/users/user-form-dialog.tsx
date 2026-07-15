@@ -81,7 +81,8 @@ export function UserFormDialog({
               id="username"
               name="username"
               defaultValue={user?.username}
-              disabled={isEdit}
+              readOnly={isEdit}
+              className={isEdit ? "bg-muted text-muted-foreground" : undefined}
               required
             />
           </div>
@@ -106,7 +107,9 @@ export function UserFormDialog({
               }}
             >
               <SelectTrigger id="role" className="w-full">
-                <SelectValue placeholder="Pilih role" />
+                <SelectValue placeholder="Pilih role">
+                  {(value: string) => roleLabel[value] ?? "Pilih role"}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {Object.entries(roleLabel).map(([value, label]) => (
@@ -126,7 +129,12 @@ export function UserFormDialog({
                 defaultValue={user?.id_divisi ? String(user.id_divisi) : undefined}
               >
                 <SelectTrigger id="idDivisi" className="w-full">
-                  <SelectValue placeholder="Pilih divisi" />
+                  <SelectValue placeholder="Pilih divisi">
+                    {(value: string | null) =>
+                      divisiOptions.find((d) => String(d.id) === value)?.nama ??
+                      "Pilih divisi"
+                    }
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {divisiOptions.map((d) => (

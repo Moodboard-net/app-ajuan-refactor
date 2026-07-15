@@ -115,7 +115,7 @@ export async function createUserAction(
   const admin = await requireRole("admin");
 
   const parsed = userFormSchema
-    .extend({ password: z.string().min(6, "Password minimal 6 karakter") })
+    .safeExtend({ password: z.string().min(6, "Password minimal 6 karakter") })
     .safeParse({
       username: formData.get("username"),
       namaLengkap: formData.get("namaLengkap"),

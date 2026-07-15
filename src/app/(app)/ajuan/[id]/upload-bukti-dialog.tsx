@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Upload, TriangleAlert } from "lucide-react";
 import { uploadBuktiAction } from "@/services/ajuanService";
@@ -30,11 +30,12 @@ export function UploadBuktiDialog({ idAjuan }: { idAjuan: number }) {
   const [handledState, setHandledState] = useState(state);
   if (state !== handledState) {
     setHandledState(state);
-    if (state?.success) {
-      setOpen(false);
-      router.refresh();
-    }
+    if (state?.success) setOpen(false);
   }
+
+  useEffect(() => {
+    if (state?.success) router.refresh();
+  }, [state, router]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
