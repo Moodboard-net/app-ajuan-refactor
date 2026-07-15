@@ -1,0 +1,59 @@
+"use client";
+
+import { useActionState } from "react";
+import { createAjuanAction, type ActionState } from "@/lib/actions/ajuan";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+
+const initialState: ActionState = {};
+
+export function AjuanForm() {
+  const [state, formAction, pending] = useActionState(
+    createAjuanAction,
+    initialState
+  );
+
+  return (
+    <form action={formAction} className="max-w-lg space-y-4">
+      <div className="space-y-2">
+        <Label htmlFor="namaPengaju">Nama Pengaju</Label>
+        <Input id="namaPengaju" name="namaPengaju" required />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="atasNamaRekening">Atas Nama Rekening</Label>
+        <Input id="atasNamaRekening" name="atasNamaRekening" required />
+      </div>
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="nomorRekening">Nomor Rekening</Label>
+          <Input id="nomorRekening" name="nomorRekening" required />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="namaBank">Nama Bank</Label>
+          <Input id="namaBank" name="namaBank" required />
+        </div>
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="keteranganKegiatan">Keterangan Kegiatan</Label>
+        <Textarea id="keteranganKegiatan" name="keteranganKegiatan" required />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="nominalDiajukan">Nominal Diajukan (Rp)</Label>
+        <Input
+          id="nominalDiajukan"
+          name="nominalDiajukan"
+          type="number"
+          min="1"
+          step="1"
+          required
+        />
+      </div>
+      {state?.error && <p className="text-sm text-destructive">{state.error}</p>}
+      <Button type="submit" disabled={pending}>
+        {pending ? "Menyimpan..." : "Ajukan"}
+      </Button>
+    </form>
+  );
+}
