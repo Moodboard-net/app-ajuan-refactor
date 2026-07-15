@@ -1,0 +1,4 @@
+{
+  "_petunjuk": "Salin file ini ke divisi-mapping.json (gitignored). Isi key dengan nilai persis dari kolom divisi_cabang di database lama, dan value dengan kode divisi baru: organisasi | hrd | pendidikan | mcx | keuangan.",
+  "Contoh Nama Cabang Lama": "organisasi"
+}
