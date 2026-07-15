@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import { Wallet, TriangleAlert } from "lucide-react";
-import { loginAction, type LoginState } from "@/server/actions/auth";
+import { loginAction, type LoginState } from "@/services/userService";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

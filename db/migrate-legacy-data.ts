@@ -24,7 +24,7 @@
 import fs from "fs";
 import path from "path";
 import postgres from "postgres";
-import { uploadBuffer } from "../src/server/storage";
+import { uploadBuffer } from "../src/lib/storage";
 
 const oldSql = postgres(process.env.OLD_DATABASE_URL!, { max: 3 });
 const newSql = postgres(process.env.DATABASE_URL!, { max: 3 });

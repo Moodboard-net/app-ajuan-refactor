@@ -1,14 +1,14 @@
-import Link from "next/link";
 import { FileStack, Wallet, CheckCircle2, Clock, Inbox } from "lucide-react";
-import { requireRole } from "@/server/auth";
-import { listAjuanAll } from "@/server/ajuan";
-import { getKpi, getStatusBreakdown, getTopDivisi, getTrenBulanan } from "@/server/dashboard";
+import { requireRole } from "@/lib/auth";
+import { listAjuanAll } from "@/services/ajuanService";
+import { getKpi, getStatusBreakdown, getTopDivisi, getTrenBulanan } from "@/services/dashboardService";
 import { formatRupiah, formatDate } from "@/lib/format";
 import { StatusBadge } from "@/components/status-badge";
 import { KpiCard } from "@/components/kpi-card";
 import { EmptyState } from "@/components/empty-state";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ImportDialog } from "./import-dialog";
 import {
   Table,
   TableBody,
@@ -34,11 +34,7 @@ export default async function CekAjuanPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">Dashboard Cek Ajuan</h1>
         <div className="flex gap-2">
-          <Button
-            variant="outline"
-            nativeButton={false}
-            render={<Link href="/import-sheet">Import Excel</Link>}
-          />
+          <ImportDialog />
           <Button
             variant="outline"
             nativeButton={false}

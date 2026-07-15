@@ -1,12 +1,12 @@
 import { notFound } from "next/navigation";
-import { FileText, UploadCloud, ReceiptText } from "lucide-react";
-import { requireRole } from "@/server/auth";
-import { getAjuanById } from "@/server/ajuan";
+import { FileText } from "lucide-react";
+import { requireRole } from "@/lib/auth";
+import { getAjuanById } from "@/services/ajuanService";
 import { formatRupiah, formatDate } from "@/lib/format";
 import { StatusBadge } from "@/components/status-badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { UploadBuktiForm } from "./upload-bukti-form";
-import { UploadLpjForm } from "./upload-lpj-form";
+import { UploadBuktiDialog } from "./upload-bukti-dialog";
+import { UploadLpjDialog } from "./upload-lpj-dialog";
 
 function DetailRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
@@ -34,7 +34,11 @@ export default async function AjuanDetailPage({
     <div className="max-w-2xl space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">Ajuan #{ajuan.id}</h1>
-        <StatusBadge status={ajuan.status} />
+        <div className="flex items-center gap-2">
+          {ajuan.status === "Disetujui" && <UploadBuktiDialog idAjuan={ajuan.id} />}
+          {ajuan.status === "Selesai Dibayar" && <UploadLpjDialog idAjuan={ajuan.id} />}
+          <StatusBadge status={ajuan.status} />
+        </div>
       </div>
 
       <Card>
@@ -59,34 +63,6 @@ export default async function AjuanDetailPage({
           )}
         </CardContent>
       </Card>
-
-      {ajuan.status === "Disetujui" && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <UploadCloud className="size-4 text-muted-foreground" />
-              Upload Bukti Transfer
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <UploadBuktiForm idAjuan={ajuan.id} />
-          </CardContent>
-        </Card>
-      )}
-
-      {ajuan.status === "Selesai Dibayar" && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <ReceiptText className="size-4 text-muted-foreground" />
-              Upload LPJ
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <UploadLpjForm idAjuan={ajuan.id} />
-          </CardContent>
-        </Card>
-      )}
     </div>
   );
 }

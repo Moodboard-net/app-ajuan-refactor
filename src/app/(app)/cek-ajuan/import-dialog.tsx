@@ -1,24 +1,46 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { FileSpreadsheet, TriangleAlert, CheckCircle2 } from "lucide-react";
-import { importSheetAction, type ImportState } from "@/server/actions/import";
+import { importSheetAction, type ImportState } from "@/services/importService";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 const initialState: ImportState = {};
 
-export function ImportForm() {
+export function ImportDialog() {
+  const router = useRouter();
   const [state, formAction, pending] = useActionState(
     importSheetAction,
     initialState
   );
 
+  const [handledState, setHandledState] = useState(state);
+  if (state !== handledState) {
+    setHandledState(state);
+  }
+
+  useEffect(() => {
+    if (state?.success) router.refresh();
+  }, [state, router]);
+
   return (
-    <Card className="max-w-md">
-      <CardContent>
+    <Dialog>
+      <DialogTrigger render={<Button variant="outline"><FileSpreadsheet />Import Excel</Button>} />
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Import Data Ajuan (Excel)</DialogTitle>
+        </DialogHeader>
         <form action={formAction} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="import-file">File Excel (.xlsx)</Label>
@@ -50,12 +72,14 @@ export function ImportForm() {
               </span>
             </p>
           )}
-          <Button type="submit" disabled={pending}>
-            <FileSpreadsheet />
-            {pending ? "Mengimpor..." : "Impor"}
-          </Button>
+          <DialogFooter>
+            <Button type="submit" disabled={pending}>
+              <FileSpreadsheet />
+              {pending ? "Mengimpor..." : "Impor"}
+            </Button>
+          </DialogFooter>
         </form>
-      </CardContent>
-    </Card>
+      </DialogContent>
+    </Dialog>
   );
 }

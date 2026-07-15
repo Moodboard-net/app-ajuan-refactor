@@ -1,23 +1,107 @@
 "use server";
 
 import { z } from "zod";
-import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { requireRole } from "@/server/auth";
-import { sql } from "@/server/db";
-import { uploadFile } from "@/server/storage";
-import {
-  createAjuan,
-  getAjuanById,
-  approveAjuan,
-  rejectAjuan,
-  markSelesaiDibayar,
-  findAjuanBelumLpj,
-  insertAuditTrail,
-} from "@/server/ajuan";
+import { requireRole } from "@/lib/auth";
+import { sql } from "@/lib/db";
+import { uploadFile } from "@/lib/storage";
 import { hitungSelisihDana } from "@/lib/dana";
+import type { Ajuan } from "@/models/ajuan";
+import type { ActionState } from "@/types";
 
-export type ActionState = { error?: string; success?: boolean };
+export async function listAjuanByDivisi(idDivisi: number): Promise<Ajuan[]> {
+  return sql<Ajuan[]>`
+    SELECT a.id, a.id_divisi, d.nama AS nama_divisi, a.nama_pengaju,
+           a.atas_nama_rekening, a.nomor_rekening, a.nama_bank,
+           a.keterangan_kegiatan, a.nominal_diajukan, a.status,
+           a.catatan_approval, a.created_at
+    FROM tb_ajuan a
+    JOIN lib_divisi d ON d.id = a.id_divisi
+    WHERE a.id_divisi = ${idDivisi} AND a.deleted_at IS NULL
+    ORDER BY a.created_at DESC
+  `;
+}
+
+export async function listAjuanMenungguApproval(): Promise<Ajuan[]> {
+  return sql<Ajuan[]>`
+    SELECT a.id, a.id_divisi, d.nama AS nama_divisi, a.nama_pengaju,
+           a.atas_nama_rekening, a.nomor_rekening, a.nama_bank,
+           a.keterangan_kegiatan, a.nominal_diajukan, a.status,
+           a.catatan_approval, a.created_at
+    FROM tb_ajuan a
+    JOIN lib_divisi d ON d.id = a.id_divisi
+    WHERE a.status = 'Menunggu Approval' AND a.deleted_at IS NULL
+    ORDER BY a.created_at ASC
+  `;
+}
+
+export async function listAjuanAll(): Promise<Ajuan[]> {
+  return sql<Ajuan[]>`
+    SELECT a.id, a.id_divisi, d.nama AS nama_divisi, a.nama_pengaju,
+           a.atas_nama_rekening, a.nomor_rekening, a.nama_bank,
+           a.keterangan_kegiatan, a.nominal_diajukan, a.status,
+           a.catatan_approval, a.created_at
+    FROM tb_ajuan a
+    JOIN lib_divisi d ON d.id = a.id_divisi
+    WHERE a.deleted_at IS NULL
+    ORDER BY a.created_at DESC
+  `;
+}
+
+export async function getAjuanById(id: number): Promise<Ajuan | null> {
+  const rows = await sql<Ajuan[]>`
+    SELECT a.id, a.id_divisi, d.nama AS nama_divisi, a.nama_pengaju,
+           a.atas_nama_rekening, a.nomor_rekening, a.nama_bank,
+           a.keterangan_kegiatan, a.nominal_diajukan, a.status,
+           a.catatan_approval, a.created_at
+    FROM tb_ajuan a
+    JOIN lib_divisi d ON d.id = a.id_divisi
+    WHERE a.id = ${id} AND a.deleted_at IS NULL
+  `;
+  return rows[0] ?? null;
+}
+
+async function findAjuanBelumLpj(
+  idDivisi: number,
+  excludeAjuanId: number
+): Promise<Ajuan[]> {
+  return sql<Ajuan[]>`
+    SELECT a.id, a.id_divisi, d.nama AS nama_divisi, a.nama_pengaju,
+           a.atas_nama_rekening, a.nomor_rekening, a.nama_bank,
+           a.keterangan_kegiatan, a.nominal_diajukan, a.status,
+           a.catatan_approval, a.created_at
+    FROM tb_ajuan a
+    JOIN lib_divisi d ON d.id = a.id_divisi
+    WHERE a.id_divisi = ${idDivisi}
+      AND a.id != ${excludeAjuanId}
+      AND a.status = 'Selesai Dibayar'
+      AND a.deleted_at IS NULL
+      AND NOT EXISTS (
+        SELECT 1 FROM tb_lpj l WHERE l.id_ajuan = a.id AND l.deleted_at IS NULL
+      )
+  `;
+}
+
+/** Dipakai halaman approval untuk menampilkan badge LPJ gate. */
+export async function countAjuanBelumLpj(
+  idDivisi: number,
+  excludeAjuanId: number
+): Promise<number> {
+  const rows = await findAjuanBelumLpj(idDivisi, excludeAjuanId);
+  return rows.length;
+}
+
+async function insertAuditTrail(
+  idAjuan: number,
+  idUser: number,
+  aksi: string,
+  detail: Record<string, string | number | boolean | null>
+): Promise<void> {
+  await sql`
+    INSERT INTO tb_audit_trail (id_ajuan, id_user, aksi, detail, created_by)
+    VALUES (${idAjuan}, ${idUser}, ${aksi}, ${sql.json(detail)}, ${idUser})
+  `;
+}
 
 const createAjuanSchema = z.object({
   namaPengaju: z.string().min(1, "Nama pengaju wajib diisi"),
@@ -47,22 +131,25 @@ export async function createAjuanAction(
     return { error: parsed.error.issues[0]?.message ?? "Data tidak valid" };
   }
 
-  const id = await createAjuan({
-    idDivisi: session.idDivisi!,
-    namaPengaju: parsed.data.namaPengaju,
-    atasNamaRekening: parsed.data.atasNamaRekening,
-    nomorRekening: parsed.data.nomorRekening,
-    namaBank: parsed.data.namaBank,
-    keteranganKegiatan: parsed.data.keteranganKegiatan,
-    nominalDiajukan: parsed.data.nominalDiajukan,
-    createdBy: session.userId,
-  });
+  const rows = await sql<{ id: number }[]>`
+    INSERT INTO tb_ajuan (
+      id_divisi, nama_pengaju, atas_nama_rekening, nomor_rekening,
+      nama_bank, keterangan_kegiatan, nominal_diajukan, created_by, updated_by
+    ) VALUES (
+      ${session.idDivisi!}, ${parsed.data.namaPengaju}, ${parsed.data.atasNamaRekening},
+      ${parsed.data.nomorRekening}, ${parsed.data.namaBank}, ${parsed.data.keteranganKegiatan},
+      ${parsed.data.nominalDiajukan}, ${session.userId}, ${session.userId}
+    )
+    RETURNING id
+  `;
+  const id = rows[0].id;
 
   await insertAuditTrail(id, session.userId, "buat_ajuan", {
     nominal: parsed.data.nominalDiajukan,
   });
 
-  redirect("/ajuan");
+  revalidatePath("/ajuan");
+  return { success: true };
 }
 
 export async function uploadBuktiAction(
@@ -92,7 +179,11 @@ export async function uploadBuktiAction(
     VALUES (${idAjuan}, ${objectKey}, ${namaFile}, ${session.userId}, ${session.userId})
   `;
 
-  await markSelesaiDibayar(idAjuan, session.userId);
+  await sql`
+    UPDATE tb_ajuan
+    SET status = 'Selesai Dibayar', updated_by = ${session.userId}, updated_at = now()
+    WHERE id = ${idAjuan}
+  `;
   await insertAuditTrail(idAjuan, session.userId, "upload_bukti_transfer", {
     namaFile,
   });
@@ -177,7 +268,12 @@ export async function approveAjuanAction(
     };
   }
 
-  await approveAjuan(idAjuan, session.userId);
+  await sql`
+    UPDATE tb_ajuan
+    SET status = 'Disetujui', id_approved_by = ${session.userId},
+        approved_at = now(), updated_by = ${session.userId}, updated_at = now()
+    WHERE id = ${idAjuan}
+  `;
   await insertAuditTrail(idAjuan, session.userId, "approve_ajuan", {});
 
   revalidatePath("/approval");
@@ -203,11 +299,39 @@ export async function rejectAjuanAction(
     return { error: parsed.error.issues[0]?.message ?? "Data tidak valid" };
   }
 
-  await rejectAjuan(parsed.data.idAjuan, session.userId, parsed.data.catatan);
+  await sql`
+    UPDATE tb_ajuan
+    SET status = 'Ditolak', catatan_approval = ${parsed.data.catatan},
+        id_approved_by = ${session.userId}, approved_at = now(),
+        updated_by = ${session.userId}, updated_at = now()
+    WHERE id = ${parsed.data.idAjuan}
+  `;
   await insertAuditTrail(parsed.data.idAjuan, session.userId, "reject_ajuan", {
     catatan: parsed.data.catatan,
   });
 
   revalidatePath("/approval");
   return { success: true };
+}
+
+export async function createAjuanFromImport(input: {
+  idDivisi: number;
+  namaPengaju: string;
+  atasNamaRekening: string;
+  nomorRekening: string;
+  namaBank: string;
+  keteranganKegiatan: string;
+  nominalDiajukan: number;
+  createdBy: number;
+}): Promise<void> {
+  await sql`
+    INSERT INTO tb_ajuan (
+      id_divisi, nama_pengaju, atas_nama_rekening, nomor_rekening,
+      nama_bank, keterangan_kegiatan, nominal_diajukan, created_by, updated_by
+    ) VALUES (
+      ${input.idDivisi}, ${input.namaPengaju}, ${input.atasNamaRekening},
+      ${input.nomorRekening}, ${input.namaBank}, ${input.keteranganKegiatan},
+      ${input.nominalDiajukan}, ${input.createdBy}, ${input.createdBy}
+    )
+  `;
 }

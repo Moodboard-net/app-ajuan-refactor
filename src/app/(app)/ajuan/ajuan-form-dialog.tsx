@@ -1,25 +1,51 @@
 "use client";
 
-import { useActionState } from "react";
-import { Send, TriangleAlert } from "lucide-react";
-import { createAjuanAction, type ActionState } from "@/server/actions/ajuan";
+import { useActionState, useState } from "react";
+import { Plus, Send, TriangleAlert } from "lucide-react";
+import { createAjuanAction } from "@/services/ajuanService";
+import type { ActionState } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 const initialState: ActionState = {};
 
-export function AjuanForm() {
+export function AjuanFormDialog() {
+  const [open, setOpen] = useState(false);
   const [state, formAction, pending] = useActionState(
     createAjuanAction,
     initialState
   );
 
+  const [handledState, setHandledState] = useState(state);
+  if (state !== handledState) {
+    setHandledState(state);
+    if (state?.success) setOpen(false);
+  }
+
   return (
-    <Card className="max-w-lg">
-      <CardContent>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger
+        render={
+          <Button>
+            <Plus />
+            Ajuan Baru
+          </Button>
+        }
+      />
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Ajuan Pembayaran Baru</DialogTitle>
+        </DialogHeader>
         <form action={formAction} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="namaPengaju">Nama Pengaju</Label>
@@ -60,12 +86,14 @@ export function AjuanForm() {
               {state.error}
             </p>
           )}
-          <Button type="submit" disabled={pending}>
-            <Send />
-            {pending ? "Menyimpan..." : "Ajukan"}
-          </Button>
+          <DialogFooter>
+            <Button type="submit" disabled={pending}>
+              <Send />
+              {pending ? "Menyimpan..." : "Ajukan"}
+            </Button>
+          </DialogFooter>
         </form>
-      </CardContent>
-    </Card>
+      </DialogContent>
+    </Dialog>
   );
 }
