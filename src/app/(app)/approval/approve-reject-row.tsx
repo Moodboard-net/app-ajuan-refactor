@@ -6,6 +6,14 @@ import { approveAjuanAction, rejectAjuanAction } from "@/services/ajuanService";
 import type { ActionState } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 const initialState: ActionState = {};
 
@@ -42,33 +50,39 @@ export function RejectButton({ idAjuan }: { idAjuan: number }) {
     initialState
   );
 
-  if (!open) {
-    return (
-      <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
-        <X />
-        Tolak
-      </Button>
-    );
+  const [handledState, setHandledState] = useState(state);
+  if (state !== handledState) {
+    setHandledState(state);
+    if (state?.success) setOpen(false);
   }
 
   return (
-    <form action={formAction} className="space-y-2">
-      <input type="hidden" name="idAjuan" value={idAjuan} />
-      <Textarea
-        name="catatan"
-        placeholder="Alasan penolakan"
-        required
-        className="w-64"
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger
+        render={
+          <Button variant="outline" size="sm">
+            <X />
+            Tolak
+          </Button>
+        }
       />
-      {state?.error && <p className="text-xs text-destructive">{state.error}</p>}
-      <div className="flex gap-2">
-        <Button type="submit" size="sm" variant="destructive" disabled={pending}>
-          {pending ? "Memproses..." : "Kirim Penolakan"}
-        </Button>
-        <Button type="button" size="sm" variant="outline" onClick={() => setOpen(false)}>
-          Batal
-        </Button>
-      </div>
-    </form>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Tolak Ajuan</DialogTitle>
+        </DialogHeader>
+        <form action={formAction} className="space-y-3">
+          <input type="hidden" name="idAjuan" value={idAjuan} />
+          <Textarea name="catatan" placeholder="Alasan penolakan" required />
+          {state?.error && (
+            <p className="text-sm text-destructive">{state.error}</p>
+          )}
+          <DialogFooter>
+            <Button type="submit" variant="destructive" disabled={pending}>
+              {pending ? "Memproses..." : "Kirim Penolakan"}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }

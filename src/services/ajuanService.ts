@@ -1,7 +1,6 @@
 "use server";
 
 import { z } from "zod";
-import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { requireRole } from "@/lib/auth";
 import { sql } from "@/lib/db";
@@ -150,7 +149,7 @@ export async function createAjuanAction(
   });
 
   revalidatePath("/ajuan");
-  redirect("/ajuan");
+  return { success: true };
 }
 
 export async function uploadBuktiAction(

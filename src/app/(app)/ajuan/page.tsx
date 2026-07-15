@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Plus, FileStack } from "lucide-react";
+import { FileStack } from "lucide-react";
 import { requireRole } from "@/lib/auth";
 import { listAjuanByDivisi } from "@/services/ajuanService";
 import { formatRupiah, formatDate } from "@/lib/format";
@@ -7,6 +7,7 @@ import { StatusBadge } from "@/components/status-badge";
 import { EmptyState } from "@/components/empty-state";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { AjuanFormDialog } from "./ajuan-form-dialog";
 import {
   Table,
   TableBody,
@@ -24,7 +25,7 @@ export default async function AjuanListPage() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">Ajuan Divisi {session.namaLengkap}</h1>
-        <Button nativeButton={false} render={<Link href="/ajuan/new"><Plus />Ajuan Baru</Link>} />
+        <AjuanFormDialog />
       </div>
 
       <Card>
