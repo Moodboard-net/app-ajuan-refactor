@@ -1,7 +1,9 @@
-import { Wallet } from "lucide-react";
+import Link from "next/link";
+import { Wallet, Users } from "lucide-react";
 import { requireUser } from "@/lib/auth";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import { LogoutButton } from "@/components/logout-button";
 
 const roleLabel: Record<string, string> = {
@@ -38,6 +40,19 @@ export default async function AppLayout({
           <Badge variant="secondary">{roleLabel[session.role]}</Badge>
         </div>
         <div className="flex items-center gap-3">
+          {session.role === "admin" && (
+            <Button
+              variant="ghost"
+              size="sm"
+              nativeButton={false}
+              render={
+                <Link href="/users">
+                  <Users />
+                  User
+                </Link>
+              }
+            />
+          )}
           <div className="flex items-center gap-2">
             <Avatar size="sm">
               <AvatarFallback>{getInitials(displayName)}</AvatarFallback>
