@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import { Check, X } from "lucide-react";
 import {
   approveAjuanAction,
   rejectAjuanAction,
@@ -28,6 +29,7 @@ export function ApproveButton({
       <form action={formAction}>
         <input type="hidden" name="idAjuan" value={idAjuan} />
         <Button type="submit" size="sm" disabled={pending || blocked}>
+          <Check />
           {pending ? "Memproses..." : "Setujui"}
         </Button>
       </form>
@@ -46,6 +48,7 @@ export function RejectButton({ idAjuan }: { idAjuan: number }) {
   if (!open) {
     return (
       <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
+        <X />
         Tolak
       </Button>
     );

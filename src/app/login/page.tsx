@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { Wallet, TriangleAlert } from "lucide-react";
 import { loginAction, type LoginState } from "@/server/actions/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,10 +23,13 @@ export default function LoginPage() {
   );
 
   return (
-    <div className="flex min-h-svh items-center justify-center bg-muted p-4">
-      <Card className="w-full max-w-sm">
-        <CardHeader>
-          <CardTitle>Ajuan Pembayaran</CardTitle>
+    <div className="flex min-h-svh items-center justify-center bg-gradient-to-br from-primary/10 via-background to-background p-4">
+      <Card className="w-full max-w-sm shadow-lg">
+        <CardHeader className="items-center text-center">
+          <div className="mb-2 flex size-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
+            <Wallet className="size-6" />
+          </div>
+          <CardTitle className="text-xl">Ajuan Pembayaran</CardTitle>
           <CardDescription>Masuk dengan akun Anda</CardDescription>
         </CardHeader>
         <CardContent>
@@ -39,7 +43,10 @@ export default function LoginPage() {
               <Input id="password" name="password" type="password" required />
             </div>
             {state?.error && (
-              <p className="text-sm text-destructive">{state.error}</p>
+              <p className="flex items-center gap-1.5 text-sm text-destructive">
+                <TriangleAlert className="size-4 shrink-0" />
+                {state.error}
+              </p>
             )}
             <Button type="submit" className="w-full" disabled={pending}>
               {pending ? "Memproses..." : "Masuk"}

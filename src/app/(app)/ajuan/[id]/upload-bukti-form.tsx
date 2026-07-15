@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { CheckCircle2, Upload, TriangleAlert } from "lucide-react";
 import { uploadBuktiAction, type ActionState } from "@/server/actions/ajuan";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,7 +16,12 @@ export function UploadBuktiForm({ idAjuan }: { idAjuan: number }) {
   );
 
   if (state?.success) {
-    return <p className="text-sm text-muted-foreground">Bukti transfer sudah diunggah.</p>;
+    return (
+      <p className="flex items-center gap-1.5 text-sm text-success">
+        <CheckCircle2 className="size-4" />
+        Bukti transfer sudah diunggah.
+      </p>
+    );
   }
 
   return (
@@ -25,8 +31,14 @@ export function UploadBuktiForm({ idAjuan }: { idAjuan: number }) {
         <Label htmlFor="bukti-file">File Bukti Transfer</Label>
         <Input id="bukti-file" name="file" type="file" required accept="image/*,.pdf" />
       </div>
-      {state?.error && <p className="text-sm text-destructive">{state.error}</p>}
+      {state?.error && (
+        <p className="flex items-center gap-1.5 text-sm text-destructive">
+          <TriangleAlert className="size-4 shrink-0" />
+          {state.error}
+        </p>
+      )}
       <Button type="submit" disabled={pending}>
+        <Upload />
         {pending ? "Mengunggah..." : "Unggah Bukti Transfer"}
       </Button>
     </form>
