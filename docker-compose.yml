@@ -7,7 +7,12 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
     ports:
-      - "5432:5432"
+      # Diikat ke localhost saja: postgres tidak perlu dijangkau dari luar host
+      # (app & migrator bicara lewat jaringan Docker internal). Penting terutama
+      # saat deploy ke VPS publik -- Docker mengatur iptables sendiri dan bisa
+      # melewati aturan ufw untuk port yang di-publish, jadi bind ke 127.0.0.1
+      # adalah cara yang benar-benar aman, bukan cuma soal firewall.
+      - "127.0.0.1:5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -23,8 +28,12 @@ services:
       RUSTFS_ACCESS_KEY: ${RUSTFS_ACCESS_KEY}
       RUSTFS_SECRET_KEY: ${RUSTFS_SECRET_KEY}
     ports:
+      # 9000 (API S3) wajib publik: browser mengambil foto profil/bukti
+      # transfer/LPJ langsung dari sini lewat signed URL (RUSTFS_PUBLIC_ENDPOINT).
       - "9000:9000"
-      - "9001:9001"
+      # 9001 (konsol admin) TIDAK perlu publik -- diikat ke localhost saja.
+      # Kalau butuh akses dari luar, pakai SSH tunnel: ssh -L 9001:localhost:9001 <host>
+      - "127.0.0.1:9001:9001"
     volumes:
       - rustfs_data:/data
 
@@ -48,6 +57,33 @@ services:
       APP_SESSION_SECRET: ${APP_SESSION_SECRET}
     ports:
       - "3000:3000"
+
+  # Jalur untuk menerapkan migrasi & seed di lingkungan yang HANYA punya Docker
+  # (mis. VPS) dan tidak menginstal Node secara terpisah. Image `app` (stage
+  # "runner") sengaja tidak membawa devDependencies maupun folder db/, jadi
+  # migrasi tidak bisa dijalankan lewat container `app`. Service ini memakai
+  # stage "builder" dari Dockerfile yang sama -- stage itu sudah punya
+  # devDependencies (drizzle-kit, tsx) + seluruh source, tanpa perlu mengubah Dockerfile.
+  #
+  # TIDAK ikut jalan otomatis saat `docker compose up` (lihat `profiles`).
+  # Jalankan manual: docker compose run --rm migrator
+  migrator:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder
+    profiles: ["tools"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      SEED_SUPER_ADMIN_USERNAME: ${SEED_SUPER_ADMIN_USERNAME}
+      SEED_SUPER_ADMIN_PASSWORD: ${SEED_SUPER_ADMIN_PASSWORD}
+      SEED_APPROVAL_USERNAME: ${SEED_APPROVAL_USERNAME}
+      SEED_APPROVAL_PASSWORD: ${SEED_APPROVAL_PASSWORD}
+    entrypoint: ["sh", "-c"]
+    command: ["npx tsx db/migrate.ts && npx tsx db/seed.ts"]
 
 volumes:
   postgres_data:
