@@ -1,0 +1,1023 @@
+{
+  "id": "14aa3583-6977-40de-8e3f-3bb393ea49bc",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.lib_divisi": {
+      "name": "lib_divisi",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigint",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "lib_divisi_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "9223372036854775807",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "kode": {
+          "name": "kode",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nama": {
+          "name": "nama",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "deleted_by": {
+          "name": "deleted_by",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "lib_divisi_kode_key": {
+          "name": "lib_divisi_kode_key",
+          "nullsNotDistinct": false,
+          "columns": [
+            "kode"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.tb_ajuan": {
+      "name": "tb_ajuan",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigint",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "tb_ajuan_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "9223372036854775807",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "id_divisi": {
+          "name": "id_divisi",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nama_pengaju": {
+          "name": "nama_pengaju",
+          "type": "varchar(150)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "atas_nama_rekening": {
+          "name": "atas_nama_rekening",
+          "type": "varchar(150)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nomor_rekening": {
+          "name": "nomor_rekening",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nama_bank": {
+          "name": "nama_bank",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "keterangan_kegiatan": {
+          "name": "keterangan_kegiatan",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nominal_diajukan": {
+          "name": "nominal_diajukan",
+          "type": "numeric(15, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "status_ajuan",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'Menunggu Approval'"
+        },
+        "id_approved_by": {
+          "name": "id_approved_by",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "approved_at": {
+          "name": "approved_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "catatan_approval": {
+          "name": "catatan_approval",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "deleted_by": {
+          "name": "deleted_by",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "kode_tracking": {
+          "name": "kode_tracking",
+          "type": "varchar(12)",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_tb_ajuan_created_at": {
+          "name": "idx_tb_ajuan_created_at",
+          "columns": [
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last",
+              "opclass": "timestamptz_ops"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_tb_ajuan_id_divisi": {
+          "name": "idx_tb_ajuan_id_divisi",
+          "columns": [
+            {
+              "expression": "id_divisi",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last",
+              "opclass": "int8_ops"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_tb_ajuan_status": {
+          "name": "idx_tb_ajuan_status",
+          "columns": [
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last",
+              "opclass": "enum_ops"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "tb_ajuan_id_divisi_fkey": {
+          "name": "tb_ajuan_id_divisi_fkey",
+          "tableFrom": "tb_ajuan",
+          "tableTo": "lib_divisi",
+          "columnsFrom": [
+            "id_divisi"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "tb_ajuan_id_approved_by_fkey": {
+          "name": "tb_ajuan_id_approved_by_fkey",
+          "tableFrom": "tb_ajuan",
+          "tableTo": "tb_user",
+          "columnsFrom": [
+            "id_approved_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "tb_ajuan_created_by_fkey": {
+          "name": "tb_ajuan_created_by_fkey",
+          "tableFrom": "tb_ajuan",
+          "tableTo": "tb_user",
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "tb_ajuan_updated_by_fkey": {
+          "name": "tb_ajuan_updated_by_fkey",
+          "tableFrom": "tb_ajuan",
+          "tableTo": "tb_user",
+          "columnsFrom": [
+            "updated_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "tb_ajuan_deleted_by_fkey": {
+          "name": "tb_ajuan_deleted_by_fkey",
+          "tableFrom": "tb_ajuan",
+          "tableTo": "tb_user",
+          "columnsFrom": [
+            "deleted_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "tb_ajuan_kode_tracking_key": {
+          "name": "tb_ajuan_kode_tracking_key",
+          "nullsNotDistinct": false,
+          "columns": [
+            "kode_tracking"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.tb_audit_trail": {
+      "name": "tb_audit_trail",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigint",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "tb_audit_trail_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "9223372036854775807",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "id_ajuan": {
+          "name": "id_ajuan",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "id_user": {
+          "name": "id_user",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "aksi": {
+          "name": "aksi",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "detail": {
+          "name": "detail",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_tb_audit_trail_id_ajuan": {
+          "name": "idx_tb_audit_trail_id_ajuan",
+          "columns": [
+            {
+              "expression": "id_ajuan",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last",
+              "opclass": "int8_ops"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "tb_audit_trail_id_ajuan_fkey": {
+          "name": "tb_audit_trail_id_ajuan_fkey",
+          "tableFrom": "tb_audit_trail",
+          "tableTo": "tb_ajuan",
+          "columnsFrom": [
+            "id_ajuan"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "tb_audit_trail_id_user_fkey": {
+          "name": "tb_audit_trail_id_user_fkey",
+          "tableFrom": "tb_audit_trail",
+          "tableTo": "tb_user",
+          "columnsFrom": [
+            "id_user"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "tb_audit_trail_created_by_fkey": {
+          "name": "tb_audit_trail_created_by_fkey",
+          "tableFrom": "tb_audit_trail",
+          "tableTo": "tb_user",
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.tb_bukti_transfer": {
+      "name": "tb_bukti_transfer",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigint",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "tb_bukti_transfer_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "9223372036854775807",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "id_ajuan": {
+          "name": "id_ajuan",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "object_key": {
+          "name": "object_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nama_file": {
+          "name": "nama_file",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "deleted_by": {
+          "name": "deleted_by",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_tb_bukti_transfer_id_ajuan": {
+          "name": "idx_tb_bukti_transfer_id_ajuan",
+          "columns": [
+            {
+              "expression": "id_ajuan",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last",
+              "opclass": "int8_ops"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "tb_bukti_transfer_id_ajuan_fkey": {
+          "name": "tb_bukti_transfer_id_ajuan_fkey",
+          "tableFrom": "tb_bukti_transfer",
+          "tableTo": "tb_ajuan",
+          "columnsFrom": [
+            "id_ajuan"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "tb_bukti_transfer_created_by_fkey": {
+          "name": "tb_bukti_transfer_created_by_fkey",
+          "tableFrom": "tb_bukti_transfer",
+          "tableTo": "tb_user",
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "tb_bukti_transfer_updated_by_fkey": {
+          "name": "tb_bukti_transfer_updated_by_fkey",
+          "tableFrom": "tb_bukti_transfer",
+          "tableTo": "tb_user",
+          "columnsFrom": [
+            "updated_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "tb_bukti_transfer_deleted_by_fkey": {
+          "name": "tb_bukti_transfer_deleted_by_fkey",
+          "tableFrom": "tb_bukti_transfer",
+          "tableTo": "tb_user",
+          "columnsFrom": [
+            "deleted_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.tb_lpj": {
+      "name": "tb_lpj",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigint",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "tb_lpj_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "9223372036854775807",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "id_ajuan": {
+          "name": "id_ajuan",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "object_key": {
+          "name": "object_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nama_file": {
+          "name": "nama_file",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nominal_realisasi": {
+          "name": "nominal_realisasi",
+          "type": "numeric(15, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "selisih_dana": {
+          "name": "selisih_dana",
+          "type": "numeric(15, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status_dana": {
+          "name": "status_dana",
+          "type": "status_dana",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "deleted_by": {
+          "name": "deleted_by",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_tb_lpj_id_ajuan": {
+          "name": "idx_tb_lpj_id_ajuan",
+          "columns": [
+            {
+              "expression": "id_ajuan",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last",
+              "opclass": "int8_ops"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "tb_lpj_id_ajuan_fkey": {
+          "name": "tb_lpj_id_ajuan_fkey",
+          "tableFrom": "tb_lpj",
+          "tableTo": "tb_ajuan",
+          "columnsFrom": [
+            "id_ajuan"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "tb_lpj_created_by_fkey": {
+          "name": "tb_lpj_created_by_fkey",
+          "tableFrom": "tb_lpj",
+          "tableTo": "tb_user",
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "tb_lpj_updated_by_fkey": {
+          "name": "tb_lpj_updated_by_fkey",
+          "tableFrom": "tb_lpj",
+          "tableTo": "tb_user",
+          "columnsFrom": [
+            "updated_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "tb_lpj_deleted_by_fkey": {
+          "name": "tb_lpj_deleted_by_fkey",
+          "tableFrom": "tb_lpj",
+          "tableTo": "tb_user",
+          "columnsFrom": [
+            "deleted_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.tb_user": {
+      "name": "tb_user",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigint",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "tb_user_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "9223372036854775807",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "username": {
+          "name": "username",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "password_hash": {
+          "name": "password_hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "role": {
+          "name": "role",
+          "type": "user_role",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "id_divisi": {
+          "name": "id_divisi",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "nama_lengkap": {
+          "name": "nama_lengkap",
+          "type": "varchar(150)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "deleted_by": {
+          "name": "deleted_by",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "foto_profil_key": {
+          "name": "foto_profil_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_tb_user_id_divisi": {
+          "name": "idx_tb_user_id_divisi",
+          "columns": [
+            {
+              "expression": "id_divisi",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last",
+              "opclass": "int8_ops"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_tb_user_role": {
+          "name": "idx_tb_user_role",
+          "columns": [
+            {
+              "expression": "role",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last",
+              "opclass": "enum_ops"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "tb_user_id_divisi_fkey": {
+          "name": "tb_user_id_divisi_fkey",
+          "tableFrom": "tb_user",
+          "tableTo": "lib_divisi",
+          "columnsFrom": [
+            "id_divisi"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "tb_user_username_key": {
+          "name": "tb_user_username_key",
+          "nullsNotDistinct": false,
+          "columns": [
+            "username"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "chk_user_divisi": {
+          "name": "chk_user_divisi",
+          "value": "((role = 'divisi'::user_role) AND (id_divisi IS NOT NULL)) OR ((role <> 'divisi'::user_role) AND (id_divisi IS NULL))"
+        }
+      },
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "public.status_ajuan": {
+      "name": "status_ajuan",
+      "schema": "public",
+      "values": [
+        "Menunggu Approval",
+        "Ditolak",
+        "Disetujui",
+        "Selesai Dibayar",
+        "Menunggu Verifikasi",
+        "Perlu Revisi"
+      ]
+    },
+    "public.status_dana": {
+      "name": "status_dana",
+      "schema": "public",
+      "values": [
+        "Surplus",
+        "Defisit",
+        "Sesuai"
+      ]
+    },
+    "public.user_role": {
+      "name": "user_role",
+      "schema": "public",
+      "values": [
+        "super_admin",
+        "approval",
+        "divisi"
+      ]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
