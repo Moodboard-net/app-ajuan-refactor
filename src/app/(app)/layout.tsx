@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Wallet, Users } from "lucide-react";
+import { Wallet, Users, Home } from "lucide-react";
 import { requireUser } from "@/lib/auth";
 import { getCurrentUser, getPhotoUrl } from "@/services/profileService";
 import { Badge } from "@/components/ui/badge";
@@ -48,6 +48,16 @@ export default async function AppLayout({
           <Badge variant="secondary">{roleLabel[session.role]}</Badge>
         </div>
         <div className="flex items-center gap-3">
+          <Button
+            variant="ghost"
+            size="icon"
+            nativeButton={false}
+            render={
+              <Link href="/" aria-label="Kembali ke beranda">
+                <Home />
+              </Link>
+            }
+          />
           <NotifBell href={notifHref[session.role]} />
           {session.role === "super_admin" && (
             <Button
