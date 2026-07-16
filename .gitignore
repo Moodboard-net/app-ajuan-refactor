@@ -43,3 +43,5 @@ LOGIN_AJUAN.txt
 
 # migrasi data lama (berisi mapping spesifik data produksi)
 db/divisi-mapping.json
+
+issue.md
