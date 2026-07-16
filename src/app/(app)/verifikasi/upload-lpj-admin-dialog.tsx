@@ -3,7 +3,7 @@
 import { useActionState, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Upload, TriangleAlert } from "lucide-react";
-import { uploadBuktiAction } from "@/services/ajuanService";
+import { uploadLpjAdminAction } from "@/services/ajuanService";
 import type { ActionState } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,11 +19,12 @@ import {
 
 const initialState: ActionState = {};
 
-export function UploadBuktiDialog({ idAjuan }: { idAjuan: number }) {
+/** Jalur cadangan: dipakai Super Admin bila pengaju kehilangan kode tracking untuk /lacak. */
+export function UploadLpjAdminDialog({ idAjuan }: { idAjuan: number }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [state, formAction, pending] = useActionState(
-    uploadBuktiAction,
+    uploadLpjAdminAction,
     initialState
   );
 
@@ -41,21 +42,38 @@ export function UploadBuktiDialog({ idAjuan }: { idAjuan: number }) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger
         render={
-          <Button>
+          <Button variant="outline" size="sm">
             <Upload />
-            Upload Bukti Transfer
+            Upload LPJ
           </Button>
         }
       />
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Upload Bukti Transfer</DialogTitle>
+          <DialogTitle>Upload LPJ (Cadangan) #{idAjuan}</DialogTitle>
         </DialogHeader>
         <form action={formAction} className="space-y-3">
           <input type="hidden" name="idAjuan" value={idAjuan} />
           <div className="space-y-2">
-            <Label htmlFor="bukti-file">File Bukti Transfer</Label>
-            <Input id="bukti-file" name="file" type="file" required accept="image/*,.pdf" />
+            <Label htmlFor={`nominalRealisasi-${idAjuan}`}>Nominal Realisasi (Rp)</Label>
+            <Input
+              id={`nominalRealisasi-${idAjuan}`}
+              name="nominalRealisasi"
+              type="number"
+              min="0"
+              step="1"
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor={`lpj-file-${idAjuan}`}>File LPJ</Label>
+            <Input
+              id={`lpj-file-${idAjuan}`}
+              name="file"
+              type="file"
+              required
+              accept="image/*,.pdf"
+            />
           </div>
           {state?.error && (
             <p className="flex items-center gap-1.5 text-sm text-destructive">

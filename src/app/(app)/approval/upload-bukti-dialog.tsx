@@ -3,7 +3,7 @@
 import { useActionState, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Upload, TriangleAlert } from "lucide-react";
-import { uploadLpjAction } from "@/services/ajuanService";
+import { uploadBuktiAction } from "@/services/ajuanService";
 import type { ActionState } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,11 +19,11 @@ import {
 
 const initialState: ActionState = {};
 
-export function UploadLpjDialog({ idAjuan }: { idAjuan: number }) {
+export function UploadBuktiDialog({ idAjuan }: { idAjuan: number }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [state, formAction, pending] = useActionState(
-    uploadLpjAction,
+    uploadBuktiAction,
     initialState
   );
 
@@ -41,32 +41,27 @@ export function UploadLpjDialog({ idAjuan }: { idAjuan: number }) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger
         render={
-          <Button>
+          <Button size="sm">
             <Upload />
-            Upload LPJ
+            Upload Bukti Transfer
           </Button>
         }
       />
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Upload LPJ</DialogTitle>
+          <DialogTitle>Upload Bukti Transfer #{idAjuan}</DialogTitle>
         </DialogHeader>
         <form action={formAction} className="space-y-3">
           <input type="hidden" name="idAjuan" value={idAjuan} />
           <div className="space-y-2">
-            <Label htmlFor="nominalRealisasi">Nominal Realisasi (Rp)</Label>
+            <Label htmlFor={`bukti-file-${idAjuan}`}>File Bukti Transfer</Label>
             <Input
-              id="nominalRealisasi"
-              name="nominalRealisasi"
-              type="number"
-              min="0"
-              step="1"
+              id={`bukti-file-${idAjuan}`}
+              name="file"
+              type="file"
               required
+              accept="image/*,.pdf"
             />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="lpj-file">File LPJ</Label>
-            <Input id="lpj-file" name="file" type="file" required accept="image/*,.pdf" />
           </div>
           {state?.error && (
             <p className="flex items-center gap-1.5 text-sm text-destructive">
