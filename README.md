@@ -51,7 +51,7 @@ Ajuan baru dari suatu divisi **tidak bisa disetujui** selama divisi tersebut mas
    docker compose up --build
    ```
 
-3. Terapkan skema database (aman dijalankan berulang, migrasi baru diterapkan incremental):
+3. Terapkan skema database lewat Drizzle (aman dijalankan berulang; migrasi yang sudah tercatat otomatis dilewati):
 
    ```bash
    npm run db:migrate
@@ -93,6 +93,28 @@ Migrasi data dari aplikasi lama (Next.js + PostgreSQL, 3 role dengan login) adal
 
 Script ini hanya memigrasikan data **ajuan** (bukan akun user) — sejak alur publik tanpa login, akun per-divisi lama tidak lagi dibawa. **Belum divalidasi terhadap data produksi asli**, jalankan dulu di salinan/staging data sebelum dipakai untuk cutover final.
 
+## Database & Migrasi (Drizzle ORM)
+
+Skema database dideklarasikan sekali di [`db/schema.ts`](db/schema.ts) menggunakan [Drizzle ORM](https://orm.drizzle.team/). Migrasi SQL **di-generate dari skema**, tidak ditulis tangan lagi.
+
+**Menambah/mengubah skema:**
+
+1. Ubah `db/schema.ts` (tambah tabel/kolom, ubah tipe, dsb. — ikuti konvensi snake_case & kolom audit yang sudah ada).
+2. Generate file migrasi:
+
+   ```bash
+   npx drizzle-kit generate
+   ```
+
+3. Tinjau file `.sql` yang dihasilkan di `db/migrations/` sebelum commit.
+4. Terapkan ke database lokal: `npm run db:migrate`.
+
+**Jangan pernah** menjalankan `drizzle-kit push` pada database yang berisi data — perintah itu menyamakan skema secara paksa dan bisa membuang data. Selalu lewat alur `generate` + `migrate` di atas.
+
+Query di `src/services/*` sedang dipindah bertahap dari raw SQL (`postgres.js` tagged template, `sql` dari `@/lib/db`) ke query builder Drizzle (`db` dari `@/lib/db`, sama-sama jalan di atas koneksi yang sama). Sebagian service masih raw SQL — itu tidak apa-apa, keduanya bisa hidup berdampingan.
+
+`db/migrations-legacy/` menyimpan file migrasi tulisan tangan dari sebelum Drizzle diadopsi (`0001_init.sql`, `0002_role_rename_alur_publik.sql`) sebagai referensi historis — sudah tidak dijalankan lagi, digantikan oleh migrasi `db/migrations/` yang di-generate Drizzle.
+
 ## Struktur Penting
 
 ```text
@@ -100,13 +122,15 @@ src/
   app/            # HANYA routing: page.tsx, layout.tsx, route.ts (App Router), termasuk /ajukan & /lacak publik
   components/     # Komponen UI reusable (client), termasuk shadcn/ui di components/ui
   services/       # Server actions: query database, mutasi, guard role ("use server")
-  lib/            # Auth/session, storage (RustFS), format, perhitungan selisih dana, dsb.
+  lib/            # Auth/session (db.ts: koneksi postgres.js + instance Drizzle), storage (RustFS), format, dsb.
   models/         # Tipe data domain (User, Ajuan, dsb.)
   types/          # Tipe bersama lintas layer (Role, ActionState)
 db/
-  migrations/     # Skema SQL, penomoran berurutan
-  migrate.ts      # Runner migrasi (idempotent, tracking via tabel _migrations)
-  seed.ts         # Seed akun awal (Super Admin & Approval)
+  schema.ts       # Skema Drizzle -- satu sumber kebenaran struktur database
+  migrations/     # Migrasi SQL, di-generate dari schema.ts via `drizzle-kit generate`
+  migrations-legacy/  # Arsip migrasi tulisan tangan sebelum Drizzle (referensi saja)
+  migrate.ts      # Runner migrasi Drizzle
+  seed.ts         # Seed data referensi (divisi) + akun awal (Super Admin & Approval)
   migrate-legacy-data.ts  # Migrasi data ajuan dari aplikasi lama
 _legacy/          # Arsip aplikasi lama (gitignored, referensi saja)
 ```
