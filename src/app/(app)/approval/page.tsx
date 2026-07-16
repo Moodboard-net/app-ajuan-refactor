@@ -6,6 +6,7 @@ import {
   countAjuanBelumLpj,
 } from "@/services/ajuanService";
 import { getKpi, getStatusBreakdown } from "@/services/dashboardService";
+import { markNotifSeen } from "@/services/notifikasiService";
 import { formatRupiah, formatDate } from "@/lib/format";
 import { StatusBadge } from "@/components/status-badge";
 import { KpiCard } from "@/components/kpi-card";
@@ -25,6 +26,7 @@ import { UploadBuktiDialog } from "./upload-bukti-dialog";
 
 export default async function ApprovalPage() {
   await requireRole("approval");
+  await markNotifSeen();
 
   const [kpi, statusBreakdown, antrian, siapBayar] = await Promise.all([
     getKpi(),

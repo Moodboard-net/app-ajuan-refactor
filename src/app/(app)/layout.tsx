@@ -6,10 +6,16 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { LogoutButton } from "@/components/logout-button";
+import { NotifBell } from "@/components/notif-bell";
 
 const roleLabel: Record<string, string> = {
   super_admin: "Super Admin",
   approval: "Approval",
+};
+
+const notifHref: Record<string, string> = {
+  super_admin: "/verifikasi",
+  approval: "/approval",
 };
 
 function getInitials(name: string) {
@@ -42,6 +48,7 @@ export default async function AppLayout({
           <Badge variant="secondary">{roleLabel[session.role]}</Badge>
         </div>
         <div className="flex items-center gap-3">
+          <NotifBell href={notifHref[session.role]} />
           {session.role === "super_admin" && (
             <Button
               variant="ghost"
