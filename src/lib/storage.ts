@@ -21,6 +21,21 @@ const client = new S3Client({
   forcePathStyle: true,
 });
 
+/**
+ * Signed URL dipakai langsung oleh browser, jadi harus pakai endpoint yang bisa
+ * dijangkau dari luar Docker network (RUSTFS_ENDPOINT="http://rustfs:9000" hanya
+ * bisa di-resolve antar container, bukan dari browser pengguna).
+ */
+const publicClient = new S3Client({
+  endpoint: process.env.RUSTFS_PUBLIC_ENDPOINT ?? process.env.RUSTFS_ENDPOINT,
+  region: "us-east-1",
+  credentials: {
+    accessKeyId: process.env.RUSTFS_ACCESS_KEY!,
+    secretAccessKey: process.env.RUSTFS_SECRET_KEY!,
+  },
+  forcePathStyle: true,
+});
+
 let bucketReady: Promise<void> | null = null;
 
 /** RustFS tidak membuat bucket otomatis; pastikan ada sebelum upload pertama. */
@@ -35,7 +50,7 @@ function ensureBucket(): Promise<void> {
 }
 
 export async function uploadFile(
-  folder: "bukti-transfer" | "lpj",
+  folder: "bukti-transfer" | "lpj" | "avatar",
   file: File
 ): Promise<{ objectKey: string; namaFile: string }> {
   const buffer = Buffer.from(await file.arrayBuffer());
@@ -44,7 +59,7 @@ export async function uploadFile(
 
 /** Dipakai oleh migrasi data lama, di luar konteks upload form (`File`). */
 export async function uploadBuffer(
-  folder: "bukti-transfer" | "lpj",
+  folder: "bukti-transfer" | "lpj" | "avatar",
   buffer: Buffer,
   namaFile: string,
   contentType?: string
@@ -66,7 +81,7 @@ export async function uploadBuffer(
 
 export async function getFileUrl(objectKey: string): Promise<string> {
   return getSignedUrl(
-    client,
+    publicClient,
     new GetObjectCommand({ Bucket: bucket, Key: objectKey }),
     { expiresIn: 60 * 10 }
   );

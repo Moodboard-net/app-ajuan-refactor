@@ -1,5 +1,6 @@
 import {
   Clock,
+  CircleAlert,
   CheckCircle2,
   XCircle,
   Wallet,
@@ -11,9 +12,17 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 const statusConfig: Record<string, { className: string; icon: React.ElementType }> = {
+  "Menunggu Verifikasi": {
+    className: "bg-muted text-muted-foreground border-transparent",
+    icon: Clock,
+  },
   "Menunggu Approval": {
     className: "bg-warning/15 text-warning border-transparent",
     icon: Clock,
+  },
+  "Perlu Revisi": {
+    className: "bg-warning/15 text-warning border-transparent",
+    icon: CircleAlert,
   },
   Disetujui: {
     className: "bg-info/15 text-info border-transparent",

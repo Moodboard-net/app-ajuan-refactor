@@ -10,9 +10,8 @@ import type { Role, ActionState } from "@/types";
 import type { User } from "@/models/user";
 
 const roleHome: Record<Role, string> = {
-  admin: "/cek-ajuan",
-  dirkeu: "/approval",
-  divisi: "/ajuan",
+  super_admin: "/cek-ajuan",
+  approval: "/approval",
 };
 
 export type LoginState = { error?: string };
@@ -41,11 +40,10 @@ export async function loginAction(
       username: string;
       password_hash: string;
       role: Role;
-      id_divisi: number | null;
       nama_lengkap: string | null;
     }[]
   >`
-    SELECT id, username, password_hash, role, id_divisi, nama_lengkap
+    SELECT id, username, password_hash, role, nama_lengkap
     FROM tb_user
     WHERE username = ${parsed.data.username} AND deleted_at IS NULL
   `;
@@ -64,7 +62,6 @@ export async function loginAction(
     userId: user.id,
     username: user.username,
     role: user.role,
-    idDivisi: user.id_divisi,
     namaLengkap: user.nama_lengkap,
   });
 
@@ -77,42 +74,27 @@ export async function logoutAction() {
 }
 
 export async function listUsers(): Promise<User[]> {
-  await requireRole("admin");
+  await requireRole("super_admin");
   return sql<User[]>`
-    SELECT u.id, u.username, u.role, u.id_divisi, d.nama AS nama_divisi,
-           u.nama_lengkap, u.created_at
+    SELECT u.id, u.username, u.role, u.nama_lengkap, u.foto_profil_key, u.created_at
     FROM tb_user u
-    LEFT JOIN lib_divisi d ON d.id = u.id_divisi
     WHERE u.deleted_at IS NULL
     ORDER BY u.role, u.username
   `;
 }
 
-export async function listDivisiOptions() {
-  await requireRole("admin");
-  return sql<{ id: number; nama: string }[]>`
-    SELECT id, nama FROM lib_divisi ORDER BY nama
-  `;
-}
-
-const userFormSchema = z
-  .object({
-    username: z.string().min(1, "Username wajib diisi"),
-    namaLengkap: z.string().min(1, "Nama lengkap wajib diisi"),
-    role: z.enum(["admin", "dirkeu", "divisi"]),
-    idDivisi: z.coerce.number().optional(),
-    password: z.string().optional(),
-  })
-  .refine((data) => data.role !== "divisi" || Boolean(data.idDivisi), {
-    message: "Divisi wajib dipilih untuk role Divisi",
-    path: ["idDivisi"],
-  });
+const userFormSchema = z.object({
+  username: z.string().min(1, "Username wajib diisi"),
+  namaLengkap: z.string().min(1, "Nama lengkap wajib diisi"),
+  role: z.enum(["super_admin", "approval"]),
+  password: z.string().optional(),
+});
 
 export async function createUserAction(
   _prevState: ActionState,
   formData: FormData
 ): Promise<ActionState> {
-  const admin = await requireRole("admin");
+  const admin = await requireRole("super_admin");
 
   const parsed = userFormSchema
     .safeExtend({ password: z.string().min(6, "Password minimal 6 karakter") })
@@ -120,7 +102,6 @@ export async function createUserAction(
       username: formData.get("username"),
       namaLengkap: formData.get("namaLengkap"),
       role: formData.get("role"),
-      idDivisi: formData.get("idDivisi") || undefined,
       password: formData.get("password"),
     });
 
@@ -128,15 +109,14 @@ export async function createUserAction(
     return { error: parsed.error.issues[0]?.message ?? "Data tidak valid" };
   }
 
-  const idDivisi = parsed.data.role === "divisi" ? (parsed.data.idDivisi ?? null) : null;
   const passwordHash = await hashPassword(parsed.data.password);
 
   try {
     await sql`
       INSERT INTO tb_user (
-        username, password_hash, role, id_divisi, nama_lengkap, created_by, updated_by
+        username, password_hash, role, nama_lengkap, created_by, updated_by
       ) VALUES (
-        ${parsed.data.username}, ${passwordHash}, ${parsed.data.role}, ${idDivisi},
+        ${parsed.data.username}, ${passwordHash}, ${parsed.data.role},
         ${parsed.data.namaLengkap}, ${admin.userId}, ${admin.userId}
       )
     `;
@@ -159,14 +139,13 @@ export async function updateUserAction(
   _prevState: ActionState,
   formData: FormData
 ): Promise<ActionState> {
-  const admin = await requireRole("admin");
+  const admin = await requireRole("super_admin");
 
   const parsed = updateUserSchema.safeParse({
     id: formData.get("id"),
     username: formData.get("username"),
     namaLengkap: formData.get("namaLengkap"),
     role: formData.get("role"),
-    idDivisi: formData.get("idDivisi") || undefined,
     password: formData.get("password") || undefined,
   });
 
@@ -174,13 +153,10 @@ export async function updateUserAction(
     return { error: parsed.error.issues[0]?.message ?? "Data tidak valid" };
   }
 
-  const idDivisi = parsed.data.role === "divisi" ? (parsed.data.idDivisi ?? null) : null;
-
   await sql`
     UPDATE tb_user
     SET nama_lengkap = ${parsed.data.namaLengkap},
         role = ${parsed.data.role},
-        id_divisi = ${idDivisi},
         updated_by = ${admin.userId},
         updated_at = now()
     WHERE id = ${parsed.data.id}

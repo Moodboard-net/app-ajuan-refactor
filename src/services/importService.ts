@@ -16,7 +16,7 @@ export async function importSheetAction(
   _prevState: ImportState,
   formData: FormData
 ): Promise<ImportState> {
-  const session = await requireRole("admin");
+  const session = await requireRole("super_admin");
 
   const file = formData.get("file") as File | null;
   if (!file || file.size === 0) {

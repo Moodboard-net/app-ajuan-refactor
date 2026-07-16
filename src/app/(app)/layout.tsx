@@ -1,15 +1,15 @@
 import Link from "next/link";
 import { Wallet, Users } from "lucide-react";
 import { requireUser } from "@/lib/auth";
+import { getCurrentUser, getPhotoUrl } from "@/services/profileService";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { LogoutButton } from "@/components/logout-button";
 
 const roleLabel: Record<string, string> = {
-  admin: "Admin",
-  dirkeu: "Dirkeu",
-  divisi: "Divisi",
+  super_admin: "Super Admin",
+  approval: "Approval",
 };
 
 function getInitials(name: string) {
@@ -28,6 +28,8 @@ export default async function AppLayout({
 }) {
   const session = await requireUser();
   const displayName = session.namaLengkap ?? session.username;
+  const currentUser = await getCurrentUser();
+  const photoUrl = await getPhotoUrl(currentUser.foto_profil_key);
 
   return (
     <div className="flex min-h-svh flex-col bg-muted/30">
@@ -40,7 +42,7 @@ export default async function AppLayout({
           <Badge variant="secondary">{roleLabel[session.role]}</Badge>
         </div>
         <div className="flex items-center gap-3">
-          {session.role === "admin" && (
+          {session.role === "super_admin" && (
             <Button
               variant="ghost"
               size="sm"
@@ -53,12 +55,20 @@ export default async function AppLayout({
               }
             />
           )}
-          <div className="flex items-center gap-2">
-            <Avatar size="sm">
-              <AvatarFallback>{getInitials(displayName)}</AvatarFallback>
-            </Avatar>
-            <span className="text-sm text-muted-foreground">{displayName}</span>
-          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            nativeButton={false}
+            render={
+              <Link href="/profile" className="flex items-center gap-2">
+                <Avatar size="sm">
+                  {photoUrl && <AvatarImage src={photoUrl} alt={displayName} />}
+                  <AvatarFallback>{getInitials(displayName)}</AvatarFallback>
+                </Avatar>
+                <span className="text-sm text-muted-foreground">{displayName}</span>
+              </Link>
+            }
+          />
           <LogoutButton />
         </div>
       </header>

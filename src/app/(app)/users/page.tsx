@@ -1,5 +1,5 @@
 import { requireRole } from "@/lib/auth";
-import { listUsers, listDivisiOptions } from "@/services/userService";
+import { listUsers } from "@/services/userService";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -13,23 +13,19 @@ import {
 import { UserFormDialog } from "./user-form-dialog";
 
 const roleLabel: Record<string, string> = {
-  admin: "Admin",
-  dirkeu: "Dirkeu",
-  divisi: "Divisi",
+  super_admin: "Super Admin",
+  approval: "Approval",
 };
 
 export default async function UsersPage() {
-  await requireRole("admin");
-  const [users, divisiOptions] = await Promise.all([
-    listUsers(),
-    listDivisiOptions(),
-  ]);
+  await requireRole("super_admin");
+  const users = await listUsers();
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">Manajemen User</h1>
-        <UserFormDialog divisiOptions={divisiOptions} />
+        <UserFormDialog />
       </div>
 
       <Card>
@@ -40,7 +36,6 @@ export default async function UsersPage() {
                 <TableHead>Username</TableHead>
                 <TableHead>Nama Lengkap</TableHead>
                 <TableHead>Role</TableHead>
-                <TableHead>Divisi</TableHead>
                 <TableHead />
               </TableRow>
             </TableHeader>
@@ -52,9 +47,8 @@ export default async function UsersPage() {
                   <TableCell>
                     <Badge variant="secondary">{roleLabel[user.role]}</Badge>
                   </TableCell>
-                  <TableCell>{user.nama_divisi ?? "-"}</TableCell>
                   <TableCell>
-                    <UserFormDialog user={user} divisiOptions={divisiOptions} />
+                    <UserFormDialog user={user} />
                   </TableCell>
                 </TableRow>
               ))}

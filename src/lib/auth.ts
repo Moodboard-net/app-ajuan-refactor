@@ -8,7 +8,6 @@ export type SessionPayload = {
   userId: number;
   username: string;
   role: Role;
-  idDivisi: number | null;
   namaLengkap: string | null;
 };
 
@@ -54,7 +53,6 @@ export async function getSession(): Promise<SessionPayload | null> {
       userId: payload.userId as number,
       username: payload.username as string,
       role: payload.role as Role,
-      idDivisi: (payload.idDivisi as number) ?? null,
       namaLengkap: (payload.namaLengkap as string) ?? null,
     };
   } catch {
