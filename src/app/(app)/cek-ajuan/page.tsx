@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/table";
 
 export default async function CekAjuanPage() {
-  await requireRole("admin");
+  await requireRole("super_admin");
 
   const [kpi, statusBreakdown, topDivisi, tren, ajuanList] = await Promise.all([
     getKpi(),

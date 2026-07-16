@@ -4,8 +4,7 @@ export type User = {
   id: number;
   username: string;
   role: Role;
-  id_divisi: number | null;
-  nama_divisi: string | null;
   nama_lengkap: string | null;
+  foto_profil_key: string | null;
   created_at: string;
 };

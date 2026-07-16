@@ -27,22 +27,14 @@ import {
 const initialState: ActionState = {};
 
 const roleLabel: Record<string, string> = {
-  admin: "Admin",
-  dirkeu: "Dirkeu",
-  divisi: "Divisi",
+  super_admin: "Super Admin",
+  approval: "Approval",
 };
 
-export function UserFormDialog({
-  user,
-  divisiOptions,
-}: {
-  user?: User;
-  divisiOptions: { id: number; nama: string }[];
-}) {
+export function UserFormDialog({ user }: { user?: User }) {
   const isEdit = Boolean(user);
   const action = isEdit ? updateUserAction : createUserAction;
   const [open, setOpen] = useState(false);
-  const [role, setRole] = useState(user?.role ?? "divisi");
   const [state, formAction, pending] = useActionState(action, initialState);
 
   const [handledState, setHandledState] = useState(state);
@@ -99,13 +91,7 @@ export function UserFormDialog({
 
           <div className="space-y-2">
             <Label htmlFor="role">Role</Label>
-            <Select
-              name="role"
-              value={role}
-              onValueChange={(value) => {
-                if (value) setRole(value);
-              }}
-            >
+            <Select name="role" defaultValue={user?.role ?? "approval"}>
               <SelectTrigger id="role" className="w-full">
                 <SelectValue placeholder="Pilih role">
                   {(value: string) => roleLabel[value] ?? "Pilih role"}
@@ -120,32 +106,6 @@ export function UserFormDialog({
               </SelectContent>
             </Select>
           </div>
-
-          {role === "divisi" && (
-            <div className="space-y-2">
-              <Label htmlFor="idDivisi">Divisi</Label>
-              <Select
-                name="idDivisi"
-                defaultValue={user?.id_divisi ? String(user.id_divisi) : undefined}
-              >
-                <SelectTrigger id="idDivisi" className="w-full">
-                  <SelectValue placeholder="Pilih divisi">
-                    {(value: string | null) =>
-                      divisiOptions.find((d) => String(d.id) === value)?.nama ??
-                      "Pilih divisi"
-                    }
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  {divisiOptions.map((d) => (
-                    <SelectItem key={d.id} value={String(d.id)}>
-                      {d.nama}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
 
           <div className="space-y-2">
             <Label htmlFor="password">

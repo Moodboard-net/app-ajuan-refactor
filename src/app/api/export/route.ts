@@ -4,7 +4,7 @@ import { requireRole } from "@/lib/auth";
 import { listAjuanAll } from "@/services/ajuanService";
 
 export async function GET() {
-  await requireRole("admin", "dirkeu");
+  await requireRole("super_admin", "approval");
 
   const data = await listAjuanAll();
 

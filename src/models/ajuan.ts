@@ -1,3 +1,11 @@
+export type StatusAjuan =
+  | "Menunggu Verifikasi"
+  | "Menunggu Approval"
+  | "Perlu Revisi"
+  | "Ditolak"
+  | "Disetujui"
+  | "Selesai Dibayar";
+
 export type Ajuan = {
   id: number;
   id_divisi: number;
@@ -8,7 +16,8 @@ export type Ajuan = {
   nama_bank: string;
   keterangan_kegiatan: string;
   nominal_diajukan: string;
-  status: "Menunggu Approval" | "Ditolak" | "Disetujui" | "Selesai Dibayar";
+  status: StatusAjuan;
   catatan_approval: string | null;
+  kode_tracking: string | null;
   created_at: string;
 };
