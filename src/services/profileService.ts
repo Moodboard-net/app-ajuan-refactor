@@ -89,10 +89,50 @@ export async function updatePhotoAction(
   return { success: true };
 }
 
-const changePasswordSchema = z.object({
+const verifyPasswordLamaSchema = z.object({
   passwordLama: z.string().min(1, "Password lama wajib diisi"),
-  passwordBaru: z.string().min(6, "Password baru minimal 6 karakter"),
 });
+
+/**
+ * Langkah 1 dari wizard ganti password: hanya untuk UX (memberi tahu user
+ * lebih awal kalau salah). Ini BUKAN gerbang keamanan — changePasswordAction
+ * tetap memverifikasi ulang password lama secara independen, karena hasil
+ * fungsi ini bisa dipalsukan kalau server action lain dipanggil langsung.
+ */
+export async function verifyPasswordLamaAction(
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const session = await requireUser();
+
+  const parsed = verifyPasswordLamaSchema.safeParse({
+    passwordLama: formData.get("passwordLama"),
+  });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Data tidak valid" };
+  }
+
+  const rows = await sql<{ password_hash: string }[]>`
+    SELECT password_hash FROM tb_user WHERE id = ${session.userId} AND deleted_at IS NULL
+  `;
+  const current = rows[0];
+  if (!current || !(await verifyPassword(parsed.data.passwordLama, current.password_hash))) {
+    return { error: "Password lama salah" };
+  }
+
+  return { success: true };
+}
+
+const changePasswordSchema = z
+  .object({
+    passwordLama: z.string().min(1, "Password lama wajib diisi"),
+    passwordBaru: z.string().min(6, "Password baru minimal 6 karakter"),
+    konfirmasiPasswordBaru: z.string().min(1, "Konfirmasi password wajib diisi"),
+  })
+  .refine((data) => data.passwordBaru === data.konfirmasiPasswordBaru, {
+    message: "Konfirmasi password tidak cocok",
+    path: ["konfirmasiPasswordBaru"],
+  });
 
 export async function changePasswordAction(
   _prevState: ActionState,
@@ -103,6 +143,7 @@ export async function changePasswordAction(
   const parsed = changePasswordSchema.safeParse({
     passwordLama: formData.get("passwordLama"),
     passwordBaru: formData.get("passwordBaru"),
+    konfirmasiPasswordBaru: formData.get("konfirmasiPasswordBaru"),
   });
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Data tidak valid" };
