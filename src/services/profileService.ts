@@ -1,27 +1,29 @@
 "use server";
 
 import { z } from "zod";
+import { eq, and, isNull } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth";
-import { sql } from "@/lib/db";
+import { db } from "@/lib/db";
+import { tbUser } from "@db/schema";
 import { uploadFile, getFileUrl } from "@/lib/storage";
 import { hashPassword, verifyPassword } from "@/lib/password";
-import type { ActionState } from "@/types";
-import type { User } from "@/models/user";
+import type { ActionState, Role } from "@/types";
+import { userColumns, type User } from "@/models/user";
 
 const ALLOWED_PHOTO_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 const MAX_PHOTO_SIZE = 2 * 1024 * 1024;
 
 export async function getCurrentUser(): Promise<User> {
   const session = await requireUser();
-  const rows = await sql<User[]>`
-    SELECT id, username, role, nama_lengkap, foto_profil_key, created_at
-    FROM tb_user
-    WHERE id = ${session.userId} AND deleted_at IS NULL
-  `;
+  const rows = await db
+    .select(userColumns)
+    .from(tbUser)
+    .where(and(eq(tbUser.id, session.userId), isNull(tbUser.deletedAt)));
+
   const user = rows[0];
   if (!user) throw new Error("User sesi tidak ditemukan");
-  return user;
+  return { ...user, role: user.role as Role };
 }
 
 export async function getPhotoUrl(fotoProfilKey: string | null): Promise<string | null> {
@@ -46,13 +48,14 @@ export async function updateNamaAction(
     return { error: parsed.error.issues[0]?.message ?? "Data tidak valid" };
   }
 
-  await sql`
-    UPDATE tb_user
-    SET nama_lengkap = ${parsed.data.namaLengkap},
-        updated_by = ${session.userId},
-        updated_at = now()
-    WHERE id = ${session.userId}
-  `;
+  await db
+    .update(tbUser)
+    .set({
+      namaLengkap: parsed.data.namaLengkap,
+      updatedBy: session.userId,
+      updatedAt: new Date().toISOString(),
+    })
+    .where(eq(tbUser.id, session.userId));
 
   revalidatePath("/profile");
   return { success: true };
@@ -77,13 +80,14 @@ export async function updatePhotoAction(
 
   const { objectKey } = await uploadFile("avatar", file);
 
-  await sql`
-    UPDATE tb_user
-    SET foto_profil_key = ${objectKey},
-        updated_by = ${session.userId},
-        updated_at = now()
-    WHERE id = ${session.userId}
-  `;
+  await db
+    .update(tbUser)
+    .set({
+      fotoProfilKey: objectKey,
+      updatedBy: session.userId,
+      updatedAt: new Date().toISOString(),
+    })
+    .where(eq(tbUser.id, session.userId));
 
   revalidatePath("/profile");
   return { success: true };
@@ -112,11 +116,13 @@ export async function verifyPasswordLamaAction(
     return { error: parsed.error.issues[0]?.message ?? "Data tidak valid" };
   }
 
-  const rows = await sql<{ password_hash: string }[]>`
-    SELECT password_hash FROM tb_user WHERE id = ${session.userId} AND deleted_at IS NULL
-  `;
+  const rows = await db
+    .select({ passwordHash: tbUser.passwordHash })
+    .from(tbUser)
+    .where(and(eq(tbUser.id, session.userId), isNull(tbUser.deletedAt)));
+
   const current = rows[0];
-  if (!current || !(await verifyPassword(parsed.data.passwordLama, current.password_hash))) {
+  if (!current || !(await verifyPassword(parsed.data.passwordLama, current.passwordHash))) {
     return { error: "Password lama salah" };
   }
 
@@ -149,20 +155,25 @@ export async function changePasswordAction(
     return { error: parsed.error.issues[0]?.message ?? "Data tidak valid" };
   }
 
-  const rows = await sql<{ password_hash: string }[]>`
-    SELECT password_hash FROM tb_user WHERE id = ${session.userId} AND deleted_at IS NULL
-  `;
+  const rows = await db
+    .select({ passwordHash: tbUser.passwordHash })
+    .from(tbUser)
+    .where(and(eq(tbUser.id, session.userId), isNull(tbUser.deletedAt)));
+
   const current = rows[0];
-  if (!current || !(await verifyPassword(parsed.data.passwordLama, current.password_hash))) {
+  if (!current || !(await verifyPassword(parsed.data.passwordLama, current.passwordHash))) {
     return { error: "Password lama salah" };
   }
 
   const passwordHash = await hashPassword(parsed.data.passwordBaru);
-  await sql`
-    UPDATE tb_user
-    SET password_hash = ${passwordHash}, updated_by = ${session.userId}, updated_at = now()
-    WHERE id = ${session.userId}
-  `;
+  await db
+    .update(tbUser)
+    .set({
+      passwordHash,
+      updatedBy: session.userId,
+      updatedAt: new Date().toISOString(),
+    })
+    .where(eq(tbUser.id, session.userId));
 
   return { success: true };
 }
