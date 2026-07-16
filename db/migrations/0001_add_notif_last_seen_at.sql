@@ -1,0 +1,1 @@
+ALTER TABLE "tb_user" ADD COLUMN "notif_last_seen_at" timestamp with time zone;

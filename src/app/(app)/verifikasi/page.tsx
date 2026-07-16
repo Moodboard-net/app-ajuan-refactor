@@ -5,6 +5,7 @@ import {
   listAjuanSelesaiTanpaLpj,
   listDivisiOptions,
 } from "@/services/ajuanService";
+import { markNotifSeen } from "@/services/notifikasiService";
 import { formatRupiah, formatDate } from "@/lib/format";
 import { StatusBadge } from "@/components/status-badge";
 import { EmptyState } from "@/components/empty-state";
@@ -22,6 +23,7 @@ import { UploadLpjAdminDialog } from "./upload-lpj-admin-dialog";
 
 export default async function VerifikasiPage() {
   await requireRole("super_admin");
+  await markNotifSeen();
 
   const [antrian, selesaiTanpaLpj, divisiOptions] = await Promise.all([
     listAjuanMenungguVerifikasi(),

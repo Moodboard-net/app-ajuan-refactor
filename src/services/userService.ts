@@ -1,13 +1,15 @@
 "use server";
 
 import { z } from "zod";
+import { eq, and, isNull } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { sql } from "@/lib/db";
+import { db } from "@/lib/db";
+import { tbUser, tbAuditTrail } from "@db/schema";
 import { hashPassword, verifyPassword } from "@/lib/password";
 import { createSession, destroySession, requireRole } from "@/lib/auth";
 import type { Role, ActionState } from "@/types";
-import type { User } from "@/models/user";
+import { userColumns, type User } from "@/models/user";
 
 const roleHome: Record<Role, string> = {
   super_admin: "/cek-ajuan",
@@ -34,26 +36,23 @@ export async function loginAction(
     return { error: "Username dan password wajib diisi" };
   }
 
-  const rows = await sql<
-    {
-      id: number;
-      username: string;
-      password_hash: string;
-      role: Role;
-      nama_lengkap: string | null;
-    }[]
-  >`
-    SELECT id, username, password_hash, role, nama_lengkap
-    FROM tb_user
-    WHERE username = ${parsed.data.username} AND deleted_at IS NULL
-  `;
+  const rows = await db
+    .select({
+      id: tbUser.id,
+      username: tbUser.username,
+      passwordHash: tbUser.passwordHash,
+      role: tbUser.role,
+      namaLengkap: tbUser.namaLengkap,
+    })
+    .from(tbUser)
+    .where(and(eq(tbUser.username, parsed.data.username), isNull(tbUser.deletedAt)));
 
   const user = rows[0];
   if (!user) {
     return { error: "Username atau password salah" };
   }
 
-  const valid = await verifyPassword(parsed.data.password, user.password_hash);
+  const valid = await verifyPassword(parsed.data.password, user.passwordHash);
   if (!valid) {
     return { error: "Username atau password salah" };
   }
@@ -61,11 +60,11 @@ export async function loginAction(
   await createSession({
     userId: user.id,
     username: user.username,
-    role: user.role,
-    namaLengkap: user.nama_lengkap,
+    role: user.role as Role,
+    namaLengkap: user.namaLengkap,
   });
 
-  redirect(roleHome[user.role]);
+  redirect(roleHome[user.role as Role]);
 }
 
 export async function logoutAction() {
@@ -75,12 +74,13 @@ export async function logoutAction() {
 
 export async function listUsers(): Promise<User[]> {
   await requireRole("super_admin");
-  return sql<User[]>`
-    SELECT u.id, u.username, u.role, u.nama_lengkap, u.foto_profil_key, u.created_at
-    FROM tb_user u
-    WHERE u.deleted_at IS NULL
-    ORDER BY u.role, u.username
-  `;
+  const rows = await db
+    .select(userColumns)
+    .from(tbUser)
+    .where(isNull(tbUser.deletedAt))
+    .orderBy(tbUser.role, tbUser.username);
+
+  return rows.map((row) => ({ ...row, role: row.role as Role }));
 }
 
 const userFormSchema = z.object({
@@ -112,14 +112,14 @@ export async function createUserAction(
   const passwordHash = await hashPassword(parsed.data.password);
 
   try {
-    await sql`
-      INSERT INTO tb_user (
-        username, password_hash, role, nama_lengkap, created_by, updated_by
-      ) VALUES (
-        ${parsed.data.username}, ${passwordHash}, ${parsed.data.role},
-        ${parsed.data.namaLengkap}, ${admin.userId}, ${admin.userId}
-      )
-    `;
+    await db.insert(tbUser).values({
+      username: parsed.data.username,
+      passwordHash,
+      role: parsed.data.role,
+      namaLengkap: parsed.data.namaLengkap,
+      createdBy: admin.userId,
+      updatedBy: admin.userId,
+    });
   } catch (err) {
     if (err instanceof Error && "code" in err && err.code === "23505") {
       return { error: "Username sudah dipakai" };
@@ -153,29 +153,32 @@ export async function updateUserAction(
     return { error: parsed.error.issues[0]?.message ?? "Data tidak valid" };
   }
 
-  await sql`
-    UPDATE tb_user
-    SET nama_lengkap = ${parsed.data.namaLengkap},
-        role = ${parsed.data.role},
-        updated_by = ${admin.userId},
-        updated_at = now()
-    WHERE id = ${parsed.data.id}
-  `;
+  await db
+    .update(tbUser)
+    .set({
+      namaLengkap: parsed.data.namaLengkap,
+      role: parsed.data.role,
+      updatedBy: admin.userId,
+      updatedAt: new Date().toISOString(),
+    })
+    .where(eq(tbUser.id, parsed.data.id));
 
   if (parsed.data.password) {
     if (parsed.data.password.length < 6) {
       return { error: "Password minimal 6 karakter" };
     }
     const passwordHash = await hashPassword(parsed.data.password);
-    await sql`
-      UPDATE tb_user
-      SET password_hash = ${passwordHash}, updated_by = ${admin.userId}, updated_at = now()
-      WHERE id = ${parsed.data.id}
-    `;
-    await sql`
-      INSERT INTO tb_audit_trail (id_user, aksi, detail, created_by)
-      VALUES (${parsed.data.id}, 'reset_password_user', ${sql.json({ by: admin.username })}, ${admin.userId})
-    `;
+    await db
+      .update(tbUser)
+      .set({ passwordHash, updatedBy: admin.userId, updatedAt: new Date().toISOString() })
+      .where(eq(tbUser.id, parsed.data.id));
+
+    await db.insert(tbAuditTrail).values({
+      idUser: parsed.data.id,
+      aksi: "reset_password_user",
+      detail: { by: admin.username },
+      createdBy: admin.userId,
+    });
   }
 
   revalidatePath("/users");
