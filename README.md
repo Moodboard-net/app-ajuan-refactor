@@ -7,7 +7,7 @@ Dibangun dengan:
 - **Next.js (App Router, TypeScript)** + **shadcn/ui**
 - **PostgreSQL** sebagai database
 - **RustFS** (S3-compatible) sebagai object storage untuk bukti transfer, LPJ, dan foto profil
-- Semua dijalankan lewat **Docker Compose**, lokal saja (dikelola tim infra)
+- Semua dijalankan lewat **Docker Compose** — untuk dev lokal (dikelola tim infra), atau di-deploy ke VPS staging (lihat [Bagian Deploy](#deploy-ke-vps-staging))
 
 ## Alur & Role
 
@@ -115,6 +115,10 @@ Query di `src/services/*` sedang dipindah bertahap dari raw SQL (`postgres.js` t
 
 `db/migrations-legacy/` menyimpan file migrasi tulisan tangan dari sebelum Drizzle diadopsi (`0001_init.sql`, `0002_role_rename_alur_publik.sql`) sebagai referensi historis — sudah tidak dijalankan lagi, digantikan oleh migrasi `db/migrations/` yang di-generate Drizzle.
 
+## Deploy ke VPS (Staging)
+
+Tersedia workflow GitHub Actions (`.github/workflows/deploy-staging.yml`) yang deploy otomatis ke VPS lewat SSH tiap push ke `main`. Lihat [`docs/deploy-vps-staging.md`](docs/deploy-vps-staging.md) untuk tutorial lengkap: setup VPS, konfigurasi GitHub Secrets, sampai verifikasi. Ditulis untuk staging/uji coba, bukan produksi dengan data asli.
+
 ## Struktur Penting
 
 ```text
@@ -133,6 +137,8 @@ db/
   seed.ts         # Seed data referensi (divisi) + akun awal (Super Admin & Approval)
   migrate-legacy-data.ts  # Migrasi data ajuan dari aplikasi lama
 _legacy/          # Arsip aplikasi lama (gitignored, referensi saja)
+docs/             # Dokumentasi tambahan (mis. deploy-vps-staging.md)
+.github/workflows/  # CI/CD (deploy-staging.yml)
 ```
 
 ## Checklist Sebelum Cutover

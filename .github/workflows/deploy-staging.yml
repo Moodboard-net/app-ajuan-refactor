@@ -1,0 +1,30 @@
+name: Deploy Staging (VPS)
+
+# Deploy otomatis ke VPS staging setiap push ke main, atau dipicu manual
+# lewat tab Actions di GitHub ("Run workflow"). Lihat docs/deploy-vps-staging.md
+# untuk cara setup VPS & secrets di bawah ini.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_SSH_PORT || 22 }}
+          script_stop: true
+          script: |
+            cd "${{ secrets.VPS_APP_DIR }}"
+            git fetch origin main
+            git reset --hard origin/main
+            docker compose build
+            docker compose up -d postgres rustfs app
+            docker compose run --rm migrator
+            docker image prune -f
